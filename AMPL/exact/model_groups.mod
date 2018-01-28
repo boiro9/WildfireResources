@@ -22,7 +22,7 @@ set T_int {t1 in {0} union T, t2 in {0} union T} := {t1..t2};
 # =========
 param C    {I};
 param P    {I};
-param PR   {I, T};
+param BPR  {I};
 param A    {I};
 param CFP  {I};
 param CRP  {I};
@@ -41,14 +41,15 @@ param nMin {G, T};
 
 # Wildfire
 # ========
-param SP  {T};
+param PER  {T};
 param NVC {T};
+param EF  {I, T} default 1;
 
 # Auxiliar
 # ========
-param PER {t in T} := if t==1 then SP[t] else SP[t]-SP[t-1];
-param M_prime      := 100*(sum{i in I}C[i] + sum{t in T}NVC[t]);
-param M            := max{t in T} SP[t] + sum{i in I, t in T} PR[i,t];
+param PR {i in I, t in T} := BPR[i]*EF[i,t];
+param M_prime      		  := 100*(sum{i in I}C[i] + sum{t in T}NVC[t]);
+param M            		  := sum{t in T} PER[t] + sum{i in I, t in T} PR[i,t];
 
 
 # =============================================================================
@@ -109,7 +110,9 @@ subject to wildfire_containment_1:
 ;
 
 subject to wildfire_containment_2 {t in T}:
-	M*y[t] >= SP[t]*y[t-1] - sum{i in I, t1 in T_int[1,t]} PR[i,t1]*w[i,t1]
+	sum{t1 in T_int[1,t]} PER[t1]*y[t-1] 
+	<=
+	sum{i in I, t1 in T_int[1,t]} PR[i,t1]*w[i,t1] + M*y[t]
 ;
 
 
