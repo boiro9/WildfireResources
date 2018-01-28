@@ -1,0 +1,19 @@
+reset;
+model model_groups.mod;
+data '3_all_2_FBRP/data_groups.dat';
+
+option solver gurobi;
+solve;
+
+printf "================================================================================\n" > Solution.dat;
+printf "Cost: %s\n", Cost >> Solution.dat;
+printf "================================================================================\n\n" >> Solution.dat;
+
+printf "Period\t|\tNum. Resource\t|\tPer. Wildfire\t|\tPer. Buid\n" >> Solution.dat;
+printf "--------------------------------------------------------------------------------\n" >> Solution.dat;
+printf {t in 1..m} "%7s\t|\t%9s\t|\t%13s\t|\t%15s\n", t, sum{i in I} w[i,t], SP[t]*y[t-1], sum{i in I, t1 in 1..t} PR[i,t1]*w[i,t1] >> Solution.dat;
+
+print "" >> '3_all_2_FBRP/Solution.dat';
+display {i in I, t in T} w[i,t] + 2*fl[i,t] + 3*r[i,t] >> '3_all_2_FBRP/Solution.dat';
+print "" >> '3_all_2_FBRP/Solution.dat';
+display {i in I, t in T} PR[i,t]*w[i,t] >> Solution.dat;
