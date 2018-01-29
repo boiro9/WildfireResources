@@ -86,11 +86,9 @@ var z {i in I}         = sum{t in T} e[i, t];
 
 # Auxiliary variables
 # -------------------
-var Res_Var_Cost  = sum{i in I, t in T} C[i] * u[i, t];
-var Res_Fix_Cost  = sum{i in I} P[i]*z[i];
-var WildFire_Cost = sum{t in T} NVC[t]*y[t-1];
-
-var Cost = Res_Var_Cost + Res_Fix_Cost + WildFire_Cost;
+var Cost = + sum{i in I, t in T} C[i]*u[i, t] 
+		   + sum{i in I} P[i]*z[i] 
+		   + sum{t in T} NVC[t]*y[t-1];
 
 var Penalty = sum{g in G, t in T} M_prime*mu[g, t] + y[m];
 
@@ -105,11 +103,11 @@ minimize Total_Cost:
 
 # Wildfire containment
 # --------------------
-subject to wildfire_containment_1:
+subject to cont_1:
 	sum{t in T} PER[t]*y[t-1] <= sum{i in I, t in T} PR[i,t]*w[i,t]
 ;
 
-subject to wildfire_containment_2 {t in T}:
+subject to cont_2 {t in T}:
 	sum{t1 in T_int[1,t]} PER[t1]*y[t-1] 
 	<=
 	sum{i in I, t1 in T_int[1,t]} PR[i,t1]*w[i,t1] + M*y[t]
@@ -118,11 +116,11 @@ subject to wildfire_containment_2 {t in T}:
 
 # Start of activity
 # -----------------
-subject to start_of_activity_1 {i in I, t in T}:
+subject to start_act_1 {i in I, t in T}:
 	A[i]*w[i,t] <= sum{t1 in T_int[1,t]} fl[i,t1]
 ;
 
-subject to start_of_activity_2 {i in I}:
+subject to start_act_2 {i in I}:
 	if ITW[i] == 1 then
 		s[i,1] + sum{t in T_int[2,m]} (m+1)*s[i,t] - m*z[i]
 	else
@@ -133,7 +131,7 @@ subject to start_of_activity_2 {i in I}:
 
 # End of activity
 # ---------------
-subject to end_of_activity {i in I, t in T}:
+subject to end_act {i in I, t in T}:
 	sum{t1 in T_int[max(1, min(m, t-FBRP[i]+1)),t]} fl[i,t1] >= FBRP[i]*e[i,t]
 ;
 
@@ -143,18 +141,18 @@ subject to end_of_activity {i in I, t in T}:
 
 # Auxiliary variables
 # ···················
-var ic {i in I, t in T} = 
+var cr {i in I, t in T} = 
 	if (ITW[i] == 0) and (IOW[i] == 0) then
 		+ sum{t1 in T_int[1,t]} (t+1-t1)*s[i,t1]
+	    - sum{t2 in T_int[1,t]} (t-t2)*e[i,t2]
+		- sum{t3 in T_int[1,t]} r[i,t3]
+		- sum{t4 in T_int[1,t]} FP[i]*er[i,t4]
 	else
 		+ (t+CFP[i]-CRP[i])*s[i,1]
 		+ sum{t1 in T_int[2,t]} (t+1-t1+FP[i])*s[i,t1]
-;
-
-var cr {i in I, t in T} = + ic[i,t]
-						  - sum{t1 in T_int[1,t]} (t-t1)*e[i,t1]
-						  - sum{t2 in T_int[1,t]} r[i,t2]
-						  - sum{t3 in T_int[1,t]} FP[i]*er[i,t3]
+	    - sum{t2 in T_int[1,t]} (t-t2)*e[i,t2]
+		- sum{t3 in T_int[1,t]} r[i,t3]
+		- sum{t4 in T_int[1,t]} FP[i]*er[i,t4]
 ;
 
 
@@ -181,7 +179,7 @@ subject to break_3 {i in I, t in T}:
 # Maximum number of usage periods in a day
 # ----------------------------------------
 
-subject to maximum_num_usage_periods {i in I}:
+subject to max_num_usage {i in I}:
 	sum{t in T} u[i,t] <= DFP[i] - CTFP[i]
 ;
 
@@ -189,11 +187,11 @@ subject to maximum_num_usage_periods {i in I}:
 # Maximum and minimum number of resources of a group
 # --------------------------------------------------
 
-subject to min_num_res_group {t in T, g in G}:
+subject to min_group {g in G, t in T}:
 	nMin[g,t]*y[t-1] <= sum{i in G_I[g]} w[i,t] + mu[g,t]
 ;
 
-subject to max_num_res_group {t in T, g in G}:
+subject to max_group {g in G, t in T}:
 	sum{i in G_I[g]} w[i,t] <= nMax[g,t]*y[t-1]
 ;
 
@@ -206,20 +204,20 @@ subject to logical_1 {i in I}:
 ;
 
 subject to logical_2 {i in I}:
-	sum{t in T} s[i,t] <= 1
-;
-
-subject to logical_3 {i in I}:
 	sum{t in T} e[i,t] <= 1
 ;
 
-subject to logical_4 {i in I, t in T}:
+subject to logical_3 {i in I, t in T}:
 	r[i,t] + fl[i,t] <= u[i,t]
 ;
 
-subject to logical_5:
+subject to logical_4:
 	y[0] = 1
 ;
+
+#subject to logical_2 {i in I}:
+#	sum{t in T} s[i,t] <= 1
+#;
 
 #subject to logical_1_aux {i in I, t in T}:
 #	s[i,t] <= w[i,t] + fl[i,t]

@@ -1,0 +1,14 @@
+Package: WildfireResources
+Type: Package
+Version: 1.0.0
+Title: Wildfire Resources management (selection and allocation).
+Author: Jorge Rodriguez-Veiga, Maria Jose Ginzo-Villamayor, Balbina Casas-Mendez
+Maintainer: Jorge Rodriguez-Veiga <jorge.rodriguez.veiga@gmail.com>
+Description: Determine optimal planning that includes the number and type of resources needed to extinguishing a forest fire is a difficult task. In this package we include a general integer programming models to allocate resources to different periods of time in a day embedded in extinguishing a fire, with the goal of meeting the Spanish regulations regarding non-neglect of fronts and periods of rest of the pilots. We consider two types to get a solution, the exact method and also an heuristic algorithm designed specifically for this problem which allows to obtain a quality solution quickly in real problems.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports:
+    Rsymphony,
+    lpSolveAPI
