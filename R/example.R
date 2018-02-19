@@ -32,111 +32,69 @@
 #'
 example_data <- function(){
   # Resources
+  
   I = c("BellB412_1", "BellB412_2")
+  # Variable Cost
   C = c(10, 10)
+  names(C) <- I
+  
+  # Fix Cost
   P = c(100, 100)
+  names(P) <- I
+  
+  # Base Performance
   BPR = c(4.34, 4.34)
+  names(BPR) <- I
+  
+  # Flight time to the wildfire 
   A = c(0, 0)
+  names(A) <- I
+  
+  # Current flight period
   CFP = c(11, 0)
+  names(CFP) <- I
+  
+  # Current rest period
   CRP = c(0, 0)
+  names(CRP) <- I
+  
   CTFP = c(11, 0)
+  names(CTFP) <- I
+  
   FBRP = c(1, 1)
+  names(FBRP) <- I
+  
   FP = c(12, 12)
+  names(FP) <- I
+  
   RP = c(4, 4)
+  names(RP) <- I
+  
   DFP = c(48, 48)
+  names(DFP) <- I
+  
   ITW = c(1, 0)
+  names(ITW) <- I
+  
   IOW = c(0, 0)
-  
-  #resources = list(
-  #  BellB412_1 = list(
-  #    C    = 10,
-  #    P    = 100,
-  #    BPR  = 4.34,
-  #    A    = 0,
-  #    CFP  = 11,
-  #    CRP  = 0,
-  #    CTFP = 11,
-  #    FBRP = 1,
-  #    FP   = 12,
-  #    RP   = 4,
-  #    DFP  = 48,
-  #    ITW  = 1,
-  #    IOW  = 0
-  #  ),
-  #  BellB412_2 = list(
-  #    C    = 10,
-  #    P    = 100,
-  #    BPR  = 4.34,
-  #    A    = 1,
-  #    CFP  = 0,
-  #    CRP  = 0,
-  #    CTFP = 0,
-  #    FBRP = 1,
-  #    FP   = 12,
-  #    RP   = 4,
-  #    DFP  = 48,
-  #    ITW  = 0,
-  #    IOW  = 0
-  #  )
-  #)
-  
-  G = c("Aircrafts")
-  G_I = list(c('BellB412_1', 'BellB412_2'))
-  nMax = list(c(2, 2, 2, 2))
-  nMin = list(c(1, 1, 1, 1))
-  
-  #groups = list(
-  #  Aircrafts = list(
-  #    members = c('BellB412_1', 'BellB412_2'),
-  #    nMax    = 2,
-  #    nMin    = 1
-  #  )
-  #)
+  names(IOW) <- I
   
   TP  = c('1', '2', '3', '4')
-  EF  = list(c(1, 1, 1, 1), c(1, 1, 1, 1))
-  PER = c(5.6, 0.1, 0.1, 0.2)
-  NVC = c(70, 140, 200, 270)
+  EF  = list(
+    'BellB412_1'=c('1'=1, '2'=1, '3'=1, '4'=1), 
+    'BellB412_2'=c('1'=1, '2'=1, '3'=1, '4'=1))
+  PER = c('1'=5.6, '2'=0.1, '3'=0.1, '4'=0.2)
+  NVC = c('1'=70, '2'=140, '3'=200, '4'=270)
   
-  #fire = list(
-  #  '1' = list(
-  #    EF  = list(
-  #      BellB412_1 = 1,
-  #      BellB412_2 = 1
-  #    ),
-  #    PER = 5.6,
-  #    NVC = 70
-  #  ),
-  #  '2' = list(
-  #    EF  = list(
-  #      BellB412_1 = 1,
-  #      BellB412_2 = 1
-  #    ),
-  #    PER = 0.1,
-  #    NVC = 140
-  #  ),
-  #  '3' = list(
-  #    EF  = list(
-  #      BellB412_1 = 1,
-  #      BellB412_2 = 1
-  #    ),
-  #    PER = 0.1,
-  #    NVC = 200
-  #  ),
-  #  '4' = list(
-  #    EF  = list(
-  #      BellB412_1 = 1,
-  #      BellB412_2 = 1
-  #    ),
-  #    PER = 0.2,
-  #    NVC = 270
-  #  )
-  #)
-  
+  G = c("Aircrafts")
+  G_I = list("Aircrafts"=c('BellB412_1', 'BellB412_2'))
+  nMax = list("Aircrafts"=c('1'=2, '2'=2, '3'=2, '4'=2))
+  nMin = list("Aircrafts"=c('1'=1, '2'=1, '3'=1, '4'=1))
+
   data = list(
     I    = I,
     G    = G,
-    TP   = TP,
+    T    = TP,
     G_I  = G_I,
     C    = C,
     P    = P,
@@ -158,6 +116,5 @@ example_data <- function(){
     EF   = EF
     )
   
-  #data = list(resources = resources, groups = groups, fire = fire)
   return(data)
 }
