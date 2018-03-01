@@ -24,13 +24,13 @@ param C    {I};
 param P    {I};
 param BPR  {I};
 param A    {I};
-param CFP  {I};
+param CWP  {I}; # CWP: Current work periods, antes CFP
 param CRP  {I};
-param CTFP {I};
-param FBRP {I};
-param FP   {I};
+param CUP  {I}; # CUP: Current usage periods, antes CTFP
+param TRP  {I}; # TRP: Time to rest point, antes FBRP
+param WP   {I}; # WP: work periods, antes FP
 param RP   {I};
-param DFP  {I};
+param UP   {I}; # UP: usage periods, antes DFP
 param ITW  {I} binary, default 0;  # If 1 resource is working in this wildfire
 param IOW  {I} binary, default 0;  # If 1 resource is working in other wildfire
 
@@ -59,7 +59,7 @@ param M            		  := sum{t in T} PER[t] + sum{i in I, t in T} PR[i,t];
 # Resources
 # =========
 var s  {I, T} binary;
-var fl {I, T} binary;
+var tr {I, T} binary; # tr: travel, antes fl
 var r  {I, T} binary;
 var er {I, T} binary;
 var e  {I, T} binary;
@@ -73,7 +73,7 @@ var mu {G, T}        integer, >=0;
 # =========
 var u {i in I, t in T} = + sum{t1 in T_int[1, t]}   s[i, t1] 
 					     - sum{t2 in T_int[1, t-1]} e[i, t2];
-var w {i in I, t in T} = u[i, t] - r[i, t] - fl[i, t];
+var w {i in I, t in T} = u[i, t] - r[i, t] - tr[i, t];
 var z {i in I}         = sum{t in T} e[i, t];
 
 
@@ -117,7 +117,7 @@ subject to cont_2 {t in T}:
 # Start of activity
 # -----------------
 subject to start_act_1 {i in I, t in T}:
-	A[i]*w[i,t] <= sum{t1 in T_int[1,t]} fl[i,t1]
+	A[i]*w[i,t] <= sum{t1 in T_int[1,t]} tr[i,t1]
 ;
 
 subject to start_act_2 {i in I}:
@@ -132,7 +132,7 @@ subject to start_act_2 {i in I}:
 # End of activity
 # ---------------
 subject to end_act {i in I, t in T}:
-	sum{t1 in T_int[max(1, min(m, t-FBRP[i]+1)),t]} fl[i,t1] >= FBRP[i]*e[i,t]
+	sum{t1 in T_int[max(1, min(m, t-TRP[i]+1)),t]} tr[i,t1] >= TRP[i]*e[i,t]
 ;
 
 
@@ -146,20 +146,20 @@ var cr {i in I, t in T} =
 		+ sum{t1 in T_int[1,t]} (t+1-t1)*s[i,t1]
 	    - sum{t2 in T_int[1,t]} (t-t2)*e[i,t2]
 		- sum{t3 in T_int[1,t]} r[i,t3]
-		- sum{t4 in T_int[1,t]} FP[i]*er[i,t4]
+		- sum{t4 in T_int[1,t]} WP[i]*er[i,t4]
 	else
-		+ (t+CFP[i]-CRP[i])*s[i,1]
-		+ sum{t1 in T_int[2,t]} (t+1-t1+FP[i])*s[i,t1]
+		+ (t+CWP[i]-CRP[i])*s[i,1]
+		+ sum{t1 in T_int[2,t]} (t+1-t1+WP[i])*s[i,t1]
 	    - sum{t2 in T_int[1,t]} (t-t2)*e[i,t2]
 		- sum{t3 in T_int[1,t]} r[i,t3]
-		- sum{t4 in T_int[1,t]} FP[i]*er[i,t4]
+		- sum{t4 in T_int[1,t]} WP[i]*er[i,t4]
 ;
 
 
 # Constraints
 # ···········
 subject to breaks_1 {i in I, t in T}:
-	0 <= cr[i,t] <= FP[i]
+	0 <= cr[i,t] <= WP[i]
 ;
 
 subject to break_2 {i in I, t in T}:
@@ -172,15 +172,15 @@ subject to break_2 {i in I, t in T}:
 ;
 
 subject to break_3 {i in I, t in T}:
-	sum{t1 in T_int[max(1,t-FBRP[i]),min(m,t+FBRP[i])]} (r[i,t1]+fl[i,t1])
-	>= sum{t1 in T_int[max(1,t-FBRP[i]),min(m,t+FBRP[i])]} r[i,t]
+	sum{t1 in T_int[max(1,t-TRP[i]),min(m,t+TRP[i])]} (r[i,t1]+tr[i,t1])
+	>= sum{t1 in T_int[max(1,t-TRP[i]),min(m,t+TRP[i])]} r[i,t]
 ;
 
 # Maximum number of usage periods in a day
 # ----------------------------------------
 
 subject to max_num_usage {i in I}:
-	sum{t in T} u[i,t] <= DFP[i] - CTFP[i]
+	sum{t in T} u[i,t] <= UP[i] - CUP[i]
 ;
 
 
@@ -208,7 +208,7 @@ subject to logical_2 {i in I}:
 ;
 
 subject to logical_3 {i in I, t in T}:
-	r[i,t] + fl[i,t] <= u[i,t]
+	r[i,t] + tr[i,t] <= u[i,t]
 ;
 
 subject to logical_4:
@@ -220,7 +220,7 @@ subject to logical_4:
 #;
 
 #subject to logical_1_aux {i in I, t in T}:
-#	s[i,t] <= w[i,t] + fl[i,t]
+#	s[i,t] <= w[i,t] + tr[i,t]
 #;
 
 #subject to logical_2_aux {i in I}:
