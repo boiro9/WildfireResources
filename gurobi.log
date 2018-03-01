@@ -79,3 +79,107 @@ Academic license - for non-commercial use only
 Gurobi 7.5.2 (win64) logging started 01/30/18 20:31:21
 
 Academic license - for non-commercial use only
+
+Gurobi 7.5.2 (win64) logging started 02/25/18 16:10:47
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 577 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 61 rows and 36 columns
+Presolve time: 0.00s
+Presolved: 17 rows, 13 columns, 75 nonzeros
+Variable types: 0 continuous, 13 integer (13 binary)
+Found heuristic solution: objective 450.0000000
+Found heuristic solution: objective 340.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 340 450 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%
+
+Gurobi 7.5.2 (win64) logging started 02/25/18 16:45:39
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 577 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 61 rows and 36 columns
+Presolve time: 0.00s
+Presolved: 17 rows, 13 columns, 75 nonzeros
+Variable types: 0 continuous, 13 integer (13 binary)
+Found heuristic solution: objective 450.0000000
+Found heuristic solution: objective 340.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 340 450 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%
+
+Gurobi 7.5.2 (win64) logging started 02/25/18 16:46:10
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 577 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 61 rows and 36 columns
+Presolve time: 0.00s
+Presolved: 17 rows, 13 columns, 75 nonzeros
+Variable types: 0 continuous, 13 integer (13 binary)
+Found heuristic solution: objective 450.0000000
+Found heuristic solution: objective 340.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 340 450 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%
+
+Gurobi 7.5.2 (win64) logging started 02/25/18 16:46:54
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 577 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 61 rows and 36 columns
+Presolve time: 0.00s
+Presolved: 17 rows, 13 columns, 75 nonzeros
+Variable types: 0 continuous, 13 integer (13 binary)
+Found heuristic solution: objective 450.0000000
+Found heuristic solution: objective 340.0000000
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 8 (of 8 available processors)
+
+Solution count 2: 340 450 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%

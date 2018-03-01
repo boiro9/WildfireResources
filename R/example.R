@@ -33,63 +33,68 @@
 example_data <- function(){
   # Resources
   
-  I = c("BellB412_1", "BellB412_2")
+  I <- c("BellB412_1", "BellB412_2")
   # Variable Cost
-  C = c(10, 10)
+  C <- c(10, 10)
   names(C) <- I
   
   # Fix Cost
-  P = c(100, 100)
+  P <- c(100, 100)
   names(P) <- I
   
   # Base Performance
-  BPR = c(4.34, 4.34)
+  BPR <- c(4.34, 4.34)
   names(BPR) <- I
   
   # Flight time to the wildfire 
-  A = c(0, 0)
+  A <- c(0, 0)
   names(A) <- I
   
   # Current flight period
-  CFP = c(11, 0)
+  CFP <- c(11, 0)
   names(CFP) <- I
   
   # Current rest period
-  CRP = c(0, 0)
+  CRP <- c(0, 0)
   names(CRP) <- I
   
-  CTFP = c(11, 0)
+  CTFP <- c(11, 0)
   names(CTFP) <- I
   
-  FBRP = c(1, 1)
+  FBRP <- c(1, 1)
   names(FBRP) <- I
   
-  FP = c(12, 12)
+  FP <- c(12, 12)
   names(FP) <- I
   
-  RP = c(4, 4)
+  RP <- c(4, 4)
   names(RP) <- I
   
-  DFP = c(48, 48)
+  DFP <- c(48, 48)
   names(DFP) <- I
   
-  ITW = c(1, 0)
+  ITW <- c(1, 0)
   names(ITW) <- I
   
-  IOW = c(0, 0)
+  IOW <- c(0, 0)
   names(IOW) <- I
   
-  TP  = c('1', '2', '3', '4')
-  EF  = list(
-    'BellB412_1'=c('1'=1, '2'=1, '3'=1, '4'=1), 
-    'BellB412_2'=c('1'=1, '2'=1, '3'=1, '4'=1))
-  PER = c('1'=5.6, '2'=0.1, '3'=0.1, '4'=0.2)
-  NVC = c('1'=70, '2'=140, '3'=200, '4'=270)
+  TP  <- c(1, 2, 3, 4)
+  EF  <- array(1, 
+              dim = c(length(I), length(TP)), 
+              dimnames = list(I, TP))
+  PER <- c(5.6, 0.1, 0.1, 0.2)
+  NVC <- c(70, 140, 200, 270)
   
-  G = c("Aircrafts")
-  G_I = list("Aircrafts"=c('BellB412_1', 'BellB412_2'))
-  nMax = list("Aircrafts"=c('1'=2, '2'=2, '3'=2, '4'=2))
-  nMin = list("Aircrafts"=c('1'=1, '2'=1, '3'=1, '4'=1))
+  G <- c("air")
+  G_I <- list("air"=c("BellB412_1", "BellB412_2"))
+
+  nMax <- array(2,
+                dim = c(1, length(TP)), 
+                dimnames = list(c('air'), TP))
+  nMin <- array(0, 
+                dim = c(1, length(TP)), 
+                dimnames = list(c('air'), TP))
 
   data = list(
     I    = I,

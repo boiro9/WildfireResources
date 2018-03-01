@@ -4,17 +4,17 @@
 \alias{exact_model}
 \title{Model to solve the exact problem of Aircraft Selection and Allocation (ASA) for the containment of a wildfire.}
 \usage{
-exact_model(data, M_prime = 0, solver = "gurobi",
-  solver_params = list(TimeLimit = 600, OutputFlag = 0))
+exact_model(data, solver = "gurobi", solver_params = list(TimeLimit = 600,
+  OutputFlag = 0))
 }
 \arguments{
 \item{data}{a list with the needed information about aircrafts and wildfire. For more information see \code{\link{example_data}} function.}
 
-\item{M_prime}{penalization for the breach of the minimum aircrafts on a wildfire.}
-
 \item{solver}{solver name, 'gurobi', 'Rsymphony' or 'lpSolve'.}
 
 \item{solver_params}{list of gurobi options. Defaults to list(TimeLimit=600, OutputFlag = 0).}
+
+\item{M_prime}{penalization for the breach of the minimum aircrafts on a wildfire.}
 }
 \value{
 information about the selection and allocation of the aircrafts.
