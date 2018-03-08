@@ -15,10 +15,6 @@
 #' 
 #' @return list with the optimal value of the variables, objective function, ...
 #'
-#' @import lpSolveAPI
-#' @import Rsymphony
-#' @import slam
-#'
 #' @export
 #'
 #' @examples
@@ -552,7 +548,7 @@ rest_model <- function(I_select, m_select, S_fix_hist, params, M_prime, solver="
     heuristic$lb<-numeric(n_var)
     heuristic$modelsense<-"max"
 
-    sol<-gurobi(heuristic, solver_params)
+    sol <- gurobi::gurobi(heuristic, solver_params)
     x<-sol$x
     obj_value <- sol$objval
     sol_result<-sol$status
@@ -560,34 +556,34 @@ rest_model <- function(I_select, m_select, S_fix_hist, params, M_prime, solver="
   }else if(solver=="lpSolve" &
            requireNamespace("lpSolveAPI", quietly = TRUE)){
 
-    SP_mod<-make.lp(n_cons,n_var)
+    SP_mod <- lpSolveAPI::make.lp(n_cons,n_var)
 
-    set.objfn(SP_mod, -obj)
+    lpSolveAPI::set.objfn(SP_mod, -obj)
 
-    for(j in 1:n_cons) set.row(SP_mod, j, constr[j,])
-    set.rhs(SP_mod, rhs)
-    set.constr.type(SP_mod, sense)
+    for(j in 1:n_cons) lpSolveAPI::set.row(SP_mod, j, constr[j,])
+    lpSolveAPI::set.rhs(SP_mod, rhs)
+    lpSolveAPI::set.constr.type(SP_mod, sense)
 
     type_C <- which(type=="C")
     type_B <- which(type=="B")
 
-    set.type(SP_mod, type_C, "real")
-    set.type(SP_mod, type_B, "binary")
+    lpSolveAPI::set.type(SP_mod, type_C, "real")
+    lpSolveAPI::set.type(SP_mod, type_B, "binary")
 
-    resolver<-solve(SP_mod)
+    resolver <- lpSolveAPI::solve(SP_mod)
     if(resolver==0){
       sol_result <-"OPTIMAL"
     }else{
       sol_result <- "INFEASIBLE"
     }
-    obj_value <- -get.objective(SP_mod)
-    x <- get.variables(SP_mod)
+    obj_value <- - lpSolveAPI::get.objective(SP_mod)
+    x <- lpSolveAPI::get.variables(SP_mod)
   }else if(solver=="Rsymphony" &
            requireNamespace("Rsymphony", quietly = TRUE)){
 
     sense[sense=="="] <- "=="
 
-    sol <- Rsymphony_solve_LP(obj, constr, sense, rhs, types = type, max = T)
+    sol <- Rsymphony::Rsymphony_solve_LP(obj, constr, sense, rhs, types = type, max = T)
 
     obj_value <- sol$objval
     x <- sol$solution

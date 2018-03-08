@@ -12,9 +12,6 @@
 #'
 #' @return information about the selection and allocation of the aircrafts.
 #'
-#' @import lpSolveAPI
-#' @import Rsymphony
-#'
 #' @export
 #'
 #' @examples
@@ -33,7 +30,7 @@ exact_model <- function(
   # ---------------------------------------------------------------------------
   exactmod <- model(data)
   
-  results <- Solve(exactmod, solver)
+  results <- romo::Solve(exactmod, solver)
 
   if(results$status=="OPTIMAL"){
     objects <- get_objects(exactmod)
@@ -192,7 +189,6 @@ exact_model <- function(
 #'
 #' @param data data information.
 #'
-#' @import romo
 #' @return
 #' @export
 #'

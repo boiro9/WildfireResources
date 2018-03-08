@@ -39,7 +39,7 @@ get_model_params <- function(data){
   #-----------------------------------------------------------------------------
   # Compute model params
   #-----------------------------------------------------------------------------
-  # Aircrafts yields
+  # Aircrafts performance
   PR = BPR%*%t(EF)
 
   # Perimeter increment
@@ -311,4 +311,76 @@ varh2_i <- function(var, index, n, m){
 }
 
 
-
+var_i <- function(var, index, n, m){
+  if(var=="S"){
+    if(length(index)==2){
+      return(index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="FL"){
+    if(length(index)==2){
+      return(n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="R"){
+    if(length(index)==2){
+      return(2*n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="ER"){
+    if(length(index)==2){
+      return(3*n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="E"){
+    if(length(index)==2){
+      return(4*n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="U"){
+    if(length(index)==2){
+      return(5*n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="W"){
+    if(length(index)==2){
+      return(6*n*m+index[2]+(index[1]-1)*m)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="Z"){
+    if(length(index)==1){
+      return(7*n*m+index[1])
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="MU"){
+    if(length(index)==1){
+      return(7*n*m+n+index[1])
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }else if(var=="Y"){
+    if(length(index)==1){
+      return(7*n*m+n+m+index[1]+1)
+    }else{
+      print("Wrong number of index.")
+      return()
+    }
+  }
+}

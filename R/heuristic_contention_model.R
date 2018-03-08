@@ -15,10 +15,6 @@
 #'
 #' @return optimal values.
 #'
-#' @import lpSolveAPI
-#' @import Rsymphony
-#' @import slam
-#'
 #' @export
 contention_model <- function(W_fix, S_fix, params, M, M_prime, solver="gurobi", solver_params=list(TimeLimit=600, OutputFlag=0)){
   #-----------------------------------------------------------------------------
@@ -303,41 +299,41 @@ contention_model <- function(W_fix, S_fix, params, M, M_prime, solver="gurobi", 
     heuristic$lb<-numeric(n_var)
     heuristic$modelsense<-"min"
 
-    sol<-gurobi(heuristic, solver_params)
+    sol <- gurobi::gurobi(heuristic, solver_params)
     x<-sol$x
     obj_value <- sol$objval
     sol_result<-sol$status
   }else if(solver=="lpSolve" &
            requireNamespace("lpSolveAPI", quietly = TRUE)){
 
-    heuristic<-make.lp(n_cons, n_var)
+    heuristic <- lpSolveAPI::make.lp(n_cons, n_var)
 
-    set.objfn(heuristic, obj)
+    lpSolveAPI::set.objfn(heuristic, obj)
 
-    for(j in 1:n_cons) set.row(heuristic, j, constr[j,])
-    set.rhs(heuristic, rhs)
-    set.constr.type(heuristic, sense)
+    for(j in 1:n_cons) lpSolveAPI::set.row(heuristic, j, constr[j,])
+    lpSolveAPI::set.rhs(heuristic, rhs)
+    lpSolveAPI::set.constr.type(heuristic, sense)
 
     type_C <- which(type=="C")
     type_B <- which(type=="B")
 
-    set.type(heuristic, type_C, "real")
-    set.type(heuristic, type_B, "binary")
+    lpSolveAPI::set.type(heuristic, type_C, "real")
+    lpSolveAPI::set.type(heuristic, type_B, "binary")
 
-    resolver<-solve(heuristic)
+    resolver <- lpSolveAPI::solve(heuristic)
     if(resolver==0){
       sol_result <-"OPTIMAL"
     }else{
       sol_result <- "INFEASIBLE"
     }
-    obj_value <- get.objective(heuristic)
-    x<-get.variables(heuristic)
+    obj_value <- lpSolveAPI::get.objective(heuristic)
+    x <- lpSolveAPI::get.variables(heuristic)
   }else if(solver=="Rsymphony" &
               requireNamespace("Rsymphony", quietly = TRUE)){
 
     sense[sense=="="] <- "=="
 
-    sol <- Rsymphony_solve_LP(obj, constr, sense, rhs, types = type, max = F)
+    sol <- Rsymphony::Rsymphony_solve_LP(obj, constr, sense, rhs, types = type, max = F)
 
     obj_value <- sol$objval
     x <- sol$solution
