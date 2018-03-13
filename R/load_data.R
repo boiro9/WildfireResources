@@ -15,7 +15,7 @@ load_data <- function(resources_file, fire_file){
   # Fire
   fire <- load_fire_data(fire_file)
   
-  return(list(data.aero=aero, data.fire=fire))
+  return(list(data.resources=resources, data.fire=fire))
 }
 # --------------------------------------------------------------------------- #
 
@@ -29,8 +29,11 @@ load_data <- function(resources_file, fire_file){
 #'
 #' @examples
 load_resources_data  <- function(resources_file){
-  return(read.csv(resources_file, header = T, sep = ";", dec = ",", 
-                  stringsAsFactors =FALSE))
+  resources <- read.csv(resources_file, header = T, sep = ";", dec = ",", 
+           stringsAsFactors=FALSE)
+  resources[,'ITW'] <- as.logical(resources[,'ITW'])
+  resources[,'IOW'] <- as.logical(resources[,'IOW'])
+  return(resources)
 }
 # --------------------------------------------------------------------------- #
 
@@ -44,8 +47,7 @@ load_resources_data  <- function(resources_file){
 #'
 #' @examples
 load_fire_data  <- function(fire_file){
-  return(read.csv2(fire_file, header = T, sep = ";", dec = ",", 
-                   stringsAsFactors =FALSE))
+  return(read.csv2(fire_file, header=T, sep=";", dec=",", stringsAsFactors=F))
 }
 # --------------------------------------------------------------------------- #
 
@@ -55,17 +57,13 @@ load_fire_data  <- function(fire_file){
 #'
 #' @param resources 
 #' @param fire 
-#' @param input 
+#' @param period_time 
 #'
 #' @return
 #' @export
 #'
 #' @examples
-get_data <- function(resources, fire, input){
-  # Law
-  # ---
-  PeriodTime <- input$PeriodTime
-  
+get_data <- function(resources, fire, period_time){
   # Aircraft
   # --------
   I_col <- which(names(resources) == 'Name')
@@ -83,44 +81,44 @@ get_data <- function(resources, fire, input){
   A_min <- as.integer(resources[,A_col])
   names(A_min) <- I
   
-  CFP_col <- which(names(resources) == 'CFP')
-  CFP_min <- as.integer(resources[,CFP_col])
-  names(CFP_min) <- I
+  CWP_col <- which(names(resources) == 'CWP')
+  CWP_min <- as.integer(resources[,CWP_col])
+  names(CWP_min) <- I
   
   CRP_col <- which(names(resources) == 'CRP')
   CRP_min <- as.integer(resources[,CRP_col])
   names(CRP_min) <- I
   
-  CTFP_col <- which(names(resources) == 'CTFP')
-  CTFP_min <- as.integer(resources[,CTFP_col])
-  names(CTFP_min) <- I
+  CUP_col <- which(names(resources) == 'CUP')
+  CUP_min <- as.integer(resources[,CUP_col])
+  names(CUP_min) <- I
   
   BPR_col <- which(names(resources) == 'BPR')
   BPR_hour <- as.double(resources[,BPR_col])
   names(BPR_hour) <- I
   
-  FBRP_col <- which(names(resources) == 'FBRP')
-  FBRP_min <- as.double(resources[,FBRP_col])
-  names(FBRP_min) <- I
+  TRP_col <- which(names(resources) == 'TRP')
+  TRP_min <- as.double(resources[,TRP_col])
+  names(TRP_min) <- I
   
-  FP_col <- which(names(resources) == 'FP')
-  FP_min <- as.double(resources[,FP_col])
-  names(FP_min) <- I
+  WP_col <- which(names(resources) == 'WP')
+  WP_min <- as.double(resources[,WP_col])
+  names(WP_min) <- I
   
   RP_col <- which(names(resources) == 'RP')
   RP_min <- as.double(resources[,RP_col])
   names(RP_min) <- I
   
-  DFP_col <- which(names(resources) == 'DFP')
-  DFP_min <- as.double(resources[,DFP_col])
-  names(DFP_min) <- I
+  UP_col <- which(names(resources) == 'UP')
+  UP_min <- as.double(resources[,UP_col])
+  names(UP_min) <- I
   
   ITW_col <- which(names(resources) == 'ITW')
-  ITW <- as.double(resources[,ITW_col])
+  ITW <- as.logical(resources[,ITW_col])
   names(ITW) <- I
   
   IOW_col <- which(names(resources) == 'IOW')
-  IOW <- as.double(resources[,IOW_col])
+  IOW <- as.logical(resources[,IOW_col])
   names(IOW) <- I
   
   I_G_col <- which(names(resources) == 'G')
@@ -136,63 +134,46 @@ get_data <- function(resources, fire, input){
   
   # Fire
   # ----
-  info_rows <- seq(2,dim(fire)[1])
-  
   TP_col <- which(names(fire) == 'Period')
   PER_col <- which(names(fire) == 'PER')
   NVC_col <- which(names(fire) == 'NVC')
-  EF_ini_col <- which(names(fire) == 'EF')
-  nMin_ini_col <- which(names(fire) == 'nMin')
-  nMax_ini_col <- which(names(fire) == 'nMax')
+  EF_cols <- grep("^EF\\..*", names(fire), perl = TRUE)
+  nMin_cols <- grep("^nMin\\..*", names(fire), perl = TRUE)
+  nMax_cols <- grep("^nMax\\..*", names(fire), perl = TRUE)
   
-  EF_col <- seq(EF_ini_col, nMin_ini_col-1)
-  nMin_col <- seq(nMin_ini_col, nMax_ini_col-1)
-  nMax_col <- seq(nMax_ini_col, dim(fire)[2])
+  TP <- fire[,TP_col]
   
-  TP <- fire[info_rows,TP_col]
-  
-  PER <- as.double(fire[info_rows,PER_col])
+  PER <- as.double(fire[,PER_col])
   names(PER) <- TP
   
-  NVC <- as.double(fire[info_rows,NVC_col])
+  NVC <- as.double(fire[,NVC_col])
   names(NVC) <- TP
   
-  EF <- matrix(0, nrow = length(I), ncol = length(TP))
-  row.names(EF) <- I
+  EF <- t(subset(fire, select=EF_cols))
+  row.names(EF) <- gsub("EF\\.(.*)", "\\1", row.names(EF), perl = T)
   colnames(EF) <- TP
-  j <- 0
-  for(i in I){
-    j <- j+1
-    EF[i, TP] <- as.double(sub(",", ".", fire[info_rows,EF_col[j]], 
-                               fixed = TRUE))
-  }
   
-  nMin <- matrix(0, nrow = length(G), ncol = length(TP))
-  row.names(nMin) <- G
+  nMin <- t(subset(fire, select=nMin_cols))
+  row.names(nMin) <- gsub("nMin\\.(.*)", "\\1", row.names(nMin), perl = T)
   colnames(nMin) <- TP
-  nMax <- matrix(0, nrow = length(G), ncol = length(TP))
-  row.names(nMax) <- G
+  
+  nMax <- t(subset(fire, select=nMax_cols))
+  row.names(nMax) <- gsub("nMax\\.(.*)", "\\1", row.names(nMax), perl = T)
   colnames(nMax) <- TP
-  i <- 0
-  for(g in G){
-    i <- i+1
-    nMin[g, TP] <- as.integer(fire[info_rows,nMin_col[i]])
-    nMax[g, TP] <- as.integer(fire[info_rows,nMax_col[i]])
-  }
   
   # From time to periods
   # --------------------
-  FP <- FP_min/PeriodTime
-  RP <- RP_min/PeriodTime
-  DFP <- DFP_min/PeriodTime
-  FBRP <- FBRP_min/PeriodTime
+  WP <- WP_min/period_time
+  RP <- RP_min/period_time
+  UP <- UP_min/period_time
+  TRP <- TRP_min/period_time
   
-  C <- C_min*PeriodTime
-  A <- A_min/PeriodTime
-  CFP <- CFP_min/PeriodTime
-  CRP <- CRP_min/PeriodTime
-  CTFP <- CTFP_min/PeriodTime
-  BPR <- BPR_hour*PeriodTime/60
+  C <- C_min*period_time
+  A <- A_min/period_time
+  CWP <- CWP_min/period_time
+  CRP <- CRP_min/period_time
+  CUP <- CUP_min/period_time
+  BPR <- BPR_hour*period_time/60
   
   return(
     list(
@@ -200,15 +181,15 @@ get_data <- function(resources, fire, input){
       G=G,        # Group of resources.
       G_I=G_I,    # Groups with resources information.
       T=TP,       # Set of time Periods.
-      FP=FP,      # Maximum number of time periods with no rests.
+      WP=WP,      # Maximum number of time periods with no rests.
       RP=RP,      # Number of time periods of rest.
-      DFP=DFP,    # Maximum number time periods working.
-      FBRP=FBRP,  # Number of time periods flying from fire to rest
+      UP=UP,      # Maximum number time periods working.
+      TRP=TRP,    # Number of time periods flying from fire to rest
                   #   place and vice versa.
       A=A,        # Number of time periods to arrive to the wildfire.
-      CFP=CFP,    # Number of time periods worked currently with no rests.  
+      CWP=CWP,    # Number of time periods worked currently with no rests.  
       CRP=CRP,    # Number of time periods rested currently.
-      CTFP=CTFP,  # Number of time periods worked currently.
+      CUP=CUP,    # Number of time periods worked currently.
       C=C,        # Cost per period of the aircraft.
       P=P,        # Cost of select the aircraft.
       BPR=BPR,    # Base performance of the aircraft in each time period.

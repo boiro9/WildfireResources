@@ -11,7 +11,7 @@
 #' @export
 data.scheduling <- function(sol){
   
-  WRF<-(sol$Work+2*sol$Rest+3*sol$Fly)
+  WRF<-(sol$Work+2*sol$Rest+3*sol$Travel)
   
   indices = sol$Selection==1
   
@@ -38,7 +38,7 @@ data.scheduling <- function(sol){
 plotscheduling <- function(WRF){
   df <- data.frame(aero=numeric(), start=numeric(), end=numeric(), 
                    do=numeric())
-
+  import::from(plotly, "%>%")
   for(i in 1:dim(WRF)[1]){
     cont=T
     for(j in 1:dim(WRF)[2]){
@@ -47,7 +47,7 @@ plotscheduling <- function(WRF){
       }else if(WRF[i,j]==2){
         df[dim(df)[1]+1,] = c(row.names(WRF)[i], j-1, j, "Rest")
       }else if(WRF[i,j]==3){
-        df[dim(df)[1]+1,] = c(row.names(WRF)[i], j-1, j, "Fly")
+        df[dim(df)[1]+1,] = c(row.names(WRF)[i], j-1, j, "Travel")
       }
     }
   }
@@ -55,7 +55,7 @@ plotscheduling <- function(WRF){
   df$end<-as.numeric(df$end)
 
   colors=c()
-  if(sum(df$do=="Fly")>0){
+  if(sum(df$do=="Travel")>0){
     colors <- c(colors, "deepskyblue")
   }
   if(sum(df$do=="Rest")>0){
@@ -126,6 +126,7 @@ data.contention <- function(data, sol){
 #'
 #' @export
 plotcontention <- function(df){
+  import::from(plotly, "%>%")
   plotly::plot_ly(df, x=~periods, y=~contention, type="bar") %>%
     plotly::layout(xaxis = list(title = '<b>Periods</b>',
                         zeroline=F,
@@ -150,10 +151,10 @@ plotcontention <- function(df){
 #'
 #' @param sol solution of WildfireResources problem.
 #'
-#' @return the number of aircraft in each period.
+#' @return the number of resources in each period.
 #' @export
-data.num.aircraft <- function(sol){
-  n_aero_period = col_sums(sol$Work)[1:min(max(which(sol$Y==1))+1,length(sol$Y))]
+data_num_resources <- function(sol){
+  n_aero_period = slam::col_sums(sol$Work)[1:min(max(which(sol$Y==1))+1,length(sol$Y))]
   df.n_aero_period <- data.frame(periods=as.numeric(names(n_aero_period)),
                               num = n_aero_period)
 
@@ -172,12 +173,13 @@ data.num.aircraft <- function(sol){
 #' @return resources plot
 #'
 #' @export
-plotnumaircraft <- function(df){
+plot_num_resources <- function(df){
+  import::from(plotly, "%>%")
   plotly::plot_ly(df, x=~periods, y=~num, type="bar") %>%
     plotly::layout(xaxis = list(title = '<b>Periods</b>',
                                 zeroline=F,
                                 autotick=F),
-           yaxis = list (title = '<b>Number of aircraft</b>'
+           yaxis = list (title = '<b>Number of resources</b>'
            ),
            margin=list(
              autoexpand=F,
@@ -225,6 +227,7 @@ data.performance <- function(data, sol){
 #'
 #' @export
 plotperformance <- function(df){
+  import::from(plotly, "%>%")
   if(requireNamespace("plotly", quietly = TRUE)){
     plotly::plot_ly(df, x=~periods, y=~performance, type="bar") %>%
       plotly::layout(xaxis = list(title = '<b>Periods</b>',

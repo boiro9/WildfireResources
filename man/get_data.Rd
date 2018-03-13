@@ -4,14 +4,14 @@
 \alias{get_data}
 \title{Get data}
 \usage{
-get_data(resources, fire, input)
+get_data(resources, fire, period_time)
 }
 \arguments{
 \item{resources}{}
 
 \item{fire}{}
 
-\item{input}{}
+\item{period_time}{}
 }
 \description{
 Get data

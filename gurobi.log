@@ -1,0 +1,46 @@
+
+Gurobi 7.5.2 (win64) logging started 03/13/18 21:53:03
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 565 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 78 rows and 49 columns
+Presolve time: 0.02s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.02 seconds
+Thread count was 1 (of 8 available processors)
+
+Solution count 1: 340 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%
+
+Gurobi 7.5.2 (win64) logging started 03/13/18 23:16:15
+
+Academic license - for non-commercial use only
+Warning for adding variables: zero or small (< 1e-13) coefficients, ignored
+Optimize a model with 78 rows, 49 columns and 565 nonzeros
+Variable types: 4 continuous, 45 integer (45 binary)
+Coefficient statistics:
+  Matrix range     [1e-01, 4e+01]
+  Objective range  [1e+00, 7e+04]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 5e+01]
+Presolve removed 78 rows and 49 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 8 available processors)
+
+Solution count 1: 340 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.400000000000e+02, best bound 3.400000000000e+02, gap 0.0000%

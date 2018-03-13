@@ -33,7 +33,7 @@ exact_model <- function(
   results <- romo::Solve(exactmod, solver)
 
   if(results$status=="OPTIMAL"){
-    objects <- get_objects(exactmod)
+    objects <- romo::get_objects(exactmod)
     x <- objects$variables$value
     
     # S[i,t]
@@ -48,14 +48,14 @@ exact_model <- function(
     }
 
 
-    # FL[i,t]
-    FL <- matrix(nrow = length(exactmod$I@elements), 
+    # TR[i,t]
+    TR <- matrix(nrow = length(exactmod$I@elements), 
                ncol = length(exactmod$T@elements))
-    row.names(FL) <- exactmod$I@elements
-    colnames(FL) <- exactmod$T@elements
+    row.names(TR) <- exactmod$I@elements
+    colnames(TR) <- exactmod$T@elements
     for(i in exactmod$I@elements){
       for(t in exactmod$T@elements){
-        FL[i, t] <- exactmod$fl[i,t]@value
+        TR[i, t] <- exactmod$tr[i,t]@value
       }
     }
 
@@ -163,7 +163,7 @@ exact_model <- function(
                     cost=cost,
                     penalty=penalty,
                     Start=S,
-                    Fly=FL,
+                    Travel=TR,
                     Rest=R,
                     End=E,
                     Scheduling=U,
@@ -196,22 +196,23 @@ exact_model <- function(
 #' data <- WildfireResources::example_data()
 #' m <- WildfireResources::model(data)
 model <- function(data){
+  import::from(romo, "%inset%")
   m <- romo::Model()
   
   # ===========================================================================
   # Sets
   # ===========================================================================
   
-  m$I  <- Set(name="I", elements = data$I)
-  m$G  <- Set(name="G", elements = data$G)
-  m$T  <- Set(name="T", elements = data$T)
+  m$I  <- romo::Set(name="I", elements = data$I)
+  m$G  <- romo::Set(name="G", elements = data$G)
+  m$T  <- romo::Set(name="T", elements = data$T)
   m$np <- length(m$T@elements)
-  m$T0 <- Set(name="T0", elements = as.character(seq(0, m$np)))
+  m$T0 <- romo::Set(name="T0", elements = as.character(seq(0, m$np)))
   
   # Corregir para que los sets puedan definirse sobre otros conjunto: 
   #   SetExpression.
   m$G_I <- function(g){
-    return(Set(name="group", elements=data$G_I[[g]]))
+    return(romo::Set(name="group", elements=data$G_I[[g]]))
   }
   
   # Define empty set
@@ -219,13 +220,13 @@ model <- function(data){
     t1 <- as.numeric(t1)
     t2 <- as.numeric(t2)
     if(t1<=t2){
-      return(Set(name="T_int", 
+      return(romo::Set(name="T_int", 
                  elements=as.character(
                    max(1, as.numeric(t1)):min(m$np, as.numeric(t2)))
       )
       )
     }else{
-      return(Set(name="T_int", 
+      return(romo::Set(name="T_int", 
                  elements=c()
       )
       )
@@ -243,13 +244,13 @@ model <- function(data){
   m$P    <- data$P
   m$BPR  <- data$BPR
   m$A    <- data$A
-  m$CFP  <- data$CFP
+  m$CWP  <- data$CWP
   m$CRP  <- data$CRP
-  m$CTFP <- data$CTFP
-  m$FBRP <- data$FBRP
-  m$FP   <- data$FP
+  m$CUP  <- data$CUP
+  m$TRP  <- data$TRP
+  m$WP   <- data$WP
   m$RP   <- data$RP
-  m$DFP  <- data$DFP
+  m$UP   <- data$UP
   m$ITW  <- data$ITW
   m$IOW  <- data$IOW
   
@@ -281,44 +282,44 @@ model <- function(data){
   
   # Resources
   # =========
-  m$s <- Var(name = "s", sets = ListSets(m$I, m$T), type = "binary")
-  m$fl <- Var(name = "fl", sets = ListSets(m$I, m$T), type = "binary")
-  m$r <- Var(name = "r", sets = ListSets(m$I, m$T), type = "binary")
-  m$er <- Var(name = "er", sets = ListSets(m$I, m$T), type = "binary")
-  m$e <- Var(name = "e", sets = ListSets(m$I, m$T), type = "binary")
+  m$s <- romo::Var(name = "s", sets = romo::ListSets(m$I, m$T), type = "binary")
+  m$tr <- romo::Var(name = "tr", sets = romo::ListSets(m$I, m$T), type = "binary")
+  m$r <- romo::Var(name = "r", sets = romo::ListSets(m$I, m$T), type = "binary")
+  m$er <- romo::Var(name = "er", sets = romo::ListSets(m$I, m$T), type = "binary")
+  m$e <- romo::Var(name = "e", sets = romo::ListSets(m$I, m$T), type = "binary")
   
   # Wildfire
   # ========
-  m$y <- Var(name = "y", sets = ListSets(m$T0), type = "binary")
-  m$mu <- Var(name = "mu", sets = ListSets(m$G, m$T), type = "continuous", lb=0)
+  m$y <- romo::Var(name = "y", sets = romo::ListSets(m$T0), type = "binary")
+  m$mu <- romo::Var(name = "mu", sets = romo::ListSets(m$G, m$T), type = "continuous", lb=0)
   
   # Auxiliary
   # =========
-  m$u <- AuxVar(
+  m$u <- romo::AuxVar(
     name="u", 
-    iterator=Iter(i %inset% m$I, t %inset% m$T), 
+    iterator=romo::Iter(i %inset% m$I, t %inset% m$T), 
     expr = (
-      Sum(
-        iterator = Iter(t1 %inset% m$T_int(1,t)), 
+      romo::Sum(
+        iterator = romo::Iter(t1 %inset% m$T_int(1,t)), 
         expr = m$s[i, t1]
       ) 
-      - Sum(
-        iterator = Iter(t2 %inset% m$T_int(1, as.numeric(t)-1)),
+      - romo::Sum(
+        iterator = romo::Iter(t2 %inset% m$T_int(1, as.numeric(t)-1)),
         expr = m$e[i,t2]
       )
     )
   )
   
-  m$w <- AuxVar(
+  m$w <- romo::AuxVar(
     name="w", 
-    iterator=Iter(i %inset% m$I, t %inset% m$T), 
-    expr = m$u[i, t] - m$r[i, t] - m$fl[i, t]
+    iterator=romo::Iter(i %inset% m$I, t %inset% m$T), 
+    expr = m$u[i, t] - m$r[i, t] - m$tr[i, t]
   )
   
-  m$z <- AuxVar(
+  m$z <- romo::AuxVar(
     name="z", 
-    iterator=Iter(i %inset% m$I), 
-    expr = Sum(iterator = Iter(t %inset% m$T), expr = m$e[i, t])
+    iterator=romo::Iter(i %inset% m$I), 
+    expr = romo::Sum(iterator = romo::Iter(t %inset% m$T), expr = m$e[i, t])
   )
   
   
@@ -331,25 +332,25 @@ model <- function(data){
   
   # Auxiliary variables
   # -------------------
-  m$Cost <- AuxVar(
+  m$Cost <- romo::AuxVar(
     name="Cost",
     expr = (
-      Sum(
-        iterator = Iter(i1 %inset% m$I, t1 %inset% m$T), 
+      romo::Sum(
+        iterator = romo::Iter(i1 %inset% m$I, t1 %inset% m$T), 
         expr = m$C[i1]*m$u[i1, t1]) 
-      + Sum(
-        iterator = Iter(i2 %inset% m$I), 
+      + romo::Sum(
+        iterator = romo::Iter(i2 %inset% m$I), 
         expr = m$P[i2]*m$z[i2]) 
-      + Sum(
-        iterator = Iter(t2 %inset% m$T), 
+      + romo::Sum(
+        iterator = romo::Iter(t2 %inset% m$T), 
         expr = m$NVC[t2]*m$y[as.numeric(t2)-1])
     )
   )
   
-  m$Penalty <- AuxVar(
+  m$Penalty <- romo::AuxVar(
     name="Penalty",
-    expr = Sum(
-      iterator = Iter(g %inset% m$G, t %inset% m$T),
+    expr = romo::Sum(
+      iterator = romo::Iter(g %inset% m$G, t %inset% m$T),
       expr = m$M_prime*m$mu[g, t]
     ) + m$y[m$np]
   )
@@ -357,7 +358,7 @@ model <- function(data){
   
   # Total Cost
   # ----------
-  m$Total_Cost <- Objective(
+  m$Total_Cost <- romo::Objective(
     name = "Total_Cost",
     sense = "minimize",
     expr = m$Cost + m$Penalty
@@ -369,29 +370,29 @@ model <- function(data){
   
   # Wildfire containment
   # --------------------
-  m$cont_1 <- Constraint(
+  m$cont_1 <- romo::Constraint(
     name = "cont_1",
     expr = (
-      Sum(
-        iterator = Iter(t1 %inset% m$T), 
+      romo::Sum(
+        iterator = romo::Iter(t1 %inset% m$T), 
         expr = m$PER[t1]*m$y[as.numeric(t1)-1]) 
       <= 
-        Sum(
-          iterator = Iter(i %inset% m$I, t2 %inset% m$T),
+        romo::Sum(
+          iterator = romo::Iter(i %inset% m$I, t2 %inset% m$T),
           expr = m$PR[i,t2]*m$w[i,t2]
         )
     )
   )
   
-  m$cont_2 <- Constraint(
+  m$cont_2 <- romo::Constraint(
     name = "cont_2",
-    iterator = Iter(t %inset% m$T),
+    iterator = romo::Iter(t %inset% m$T),
     expr = (
-      Sum(
-        iterator = Iter(t1 %inset% m$T_int(1, t)), 
+      romo::Sum(
+        iterator = romo::Iter(t1 %inset% m$T_int(1, t)), 
         expr = m$PER[t1]*m$y[as.numeric(t)-1]
-      ) <= Sum(
-        iterator = Iter(i %inset% m$I, t2 %inset% m$T_int(1, t)),
+      ) <= romo::Sum(
+        iterator = romo::Iter(i %inset% m$I, t2 %inset% m$T_int(1, t)),
         expr = m$PR[i,t2]*m$w[i,t2]
       ) 
       + m$M*m$y[t]
@@ -401,25 +402,25 @@ model <- function(data){
   
   # Start of activity
   # -----------------
-  m$start_act_1 <- Constraint(
+  m$start_act_1 <- romo::Constraint(
     name = "start_act_1",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
       m$A[i]*m$w[i,t] <= 
-        Sum(
-          iterator=Iter(t1 %inset% m$T_int(1, t)), 
-          expr= m$fl[i, t1]
+        romo::Sum(
+          iterator=romo::Iter(t1 %inset% m$T_int(1, t)), 
+          expr= m$tr[i, t1]
         )
     )
   )
   
-  m$start_act_2 <- Constraint(
+  m$start_act_2 <- romo::Constraint(
     name = "start_act_2",
-    iterator = Iter(i %inset% m$I),
-    expr = (if(m$ITW[i] == 1){
-      m$s[i,1] + Sum(iterator=Iter(t %inset% m$T_int(2, m$np)), expr=(m$np+1)*m$s[i,t]) - m$np*m$z[i] <= 0
+    iterator = romo::Iter(i %inset% m$I),
+    expr = (if(m$ITW[i] == TRUE){
+      m$s[i,1] + romo::Sum(iterator=romo::Iter(t %inset% m$T_int(2, m$np)), expr=(m$np+1)*m$s[i,t]) - m$np*m$z[i] <= 0
     }else{
-      Sum(iterator=Iter(t %inset% m$T), expr=m$s[i,t]) - m$z[i] <= 0
+      romo::Sum(iterator=romo::Iter(t %inset% m$T), expr=m$s[i,t]) - m$z[i] <= 0
     } 
     )
   )
@@ -427,16 +428,16 @@ model <- function(data){
   
   # End of activity
   # ---------------
-  m$end_act <- Constraint(
+  m$end_act <- romo::Constraint(
     name = "end_act",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
-      Sum(
-        iterator=Iter(t1 %inset% m$T_int(as.numeric(t)-m$FBRP[i]+1, t)),
-        expr=m$fl[i,t1]  
+      romo::Sum(
+        iterator=romo::Iter(t1 %inset% m$T_int(as.numeric(t)-m$TRP[i]+1, t)),
+        expr=m$tr[i,t1]  
       ) 
       >= 
-        m$FBRP[i]*m$e[i, t]
+        m$TRP[i]*m$e[i, t]
     )
   )
   
@@ -445,26 +446,26 @@ model <- function(data){
   
   # Auxiliary variables
   # ···················
-  m$cr <- AuxVar(
+  m$cr <- romo::AuxVar(
     name="cr", 
-    iterator=Iter(i %inset% m$I, t %inset% m$T), 
+    iterator=romo::Iter(i %inset% m$I, t %inset% m$T), 
     expr = (
-      if(m$ITW[i] == 0 && m$IOW[i] == 0){
-        Sum(
-          iterator = Iter(t1 %inset% m$T_int(1, t)),
+      if(m$ITW[i] == FALSE && m$IOW[i] == FALSE){
+        romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(1, t)),
           expr = ((as.numeric(t)+1-as.numeric(t1))*m$s[i, t1] 
                   - (as.numeric(t)-as.numeric(t1))*m$e[i,t1] 
                   - m$r[i,t1]
-                  - m$FP[i]*m$er[i,t1]
+                  - m$WP[i]*m$er[i,t1]
           )
         )
       }else{
-        ((as.numeric(t)+m$CFP[i]-m$CRP[i])*m$s[i,1]) + Sum(
-          iterator = Iter(t1 %inset% m$T_int(2, t)),
-          expr = ((as.numeric(t)+1-as.numeric(t1)+m$FP[i])*m$s[i,t1])
-        ) + Sum(
-          iterator = Iter(t2 %inset% m$T_int(1, t)),
-          expr = -(as.numeric(t)-as.numeric(t2))*m$e[i,t2] - m$r[i,t2] - m$FP[i]*m$er[i,t2]
+        ((as.numeric(t)+m$CWP[i]-m$CRP[i])*m$s[i,1]) + romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(2, t)),
+          expr = ((as.numeric(t)+1-as.numeric(t1)+m$WP[i])*m$s[i,t1])
+        ) + romo::Sum(
+          iterator = romo::Iter(t2 %inset% m$T_int(1, t)),
+          expr = -(as.numeric(t)-as.numeric(t2))*m$e[i,t2] - m$r[i,t2] - m$WP[i]*m$er[i,t2]
         )
       }
     )
@@ -473,47 +474,47 @@ model <- function(data){
   
   # Constraints
   # ···········
-  m$breaks_1_lb <- Constraint(
+  m$breaks_1_lb <- romo::Constraint(
     name = "breaks_1_lb",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = 0 <= m$cr[i,t]
   )
   
-  m$breaks_1_ub <- Constraint(
+  m$breaks_1_ub <- romo::Constraint(
     name = "breaks_1_ub",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
-    expr = m$cr[i,t] <= m$FP[i]
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
+    expr = m$cr[i,t] <= m$WP[i]
   )
   
-  m$break_2 <- Constraint(
+  m$break_2 <- romo::Constraint(
     name = "break_2",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
       if(as.numeric(t)-m$RP[i] >= 0){
-        Sum(
-          iterator = Iter(t1 %inset% m$T_int(as.numeric(t)-m$RP[i]+1,t)),
+        romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(as.numeric(t)-m$RP[i]+1,t)),
           expr = m$r[i,t1]
         ) >= m$RP[i]*m$er[i,t]
       }else{
-        m$CRP[i]*m$s[i,1] + Sum(
-          iterator = Iter(t1 %inset% m$T_int(1,t)), 
+        m$CRP[i]*m$s[i,1] + romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(1,t)), 
           expr = m$r[i,t1]
         ) >= m$RP[i]*m$er[i,t]
       } 
     )
   )
   
-  m$break_3 <- Constraint(
+  m$break_3 <- romo::Constraint(
     name = "break_3",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
-      Sum(
-        iterator=Iter(t1 %inset% m$T_int(as.numeric(t)-m$FBRP[i], as.numeric(t)+m$FBRP[i])),
-        expr = m$r[i,t1]+m$fl[i,t1]
+      romo::Sum(
+        iterator=romo::Iter(t1 %inset% m$T_int(as.numeric(t)-m$TRP[i], as.numeric(t)+m$TRP[i])),
+        expr = m$r[i,t1]+m$tr[i,t1]
       )
       >= 
-        Sum(
-          iterator=Iter(t1 %inset% m$T_int(as.numeric(t)-m$FBRP[i], as.numeric(t)+m$FBRP[i])),
+        romo::Sum(
+          iterator=romo::Iter(t1 %inset% m$T_int(as.numeric(t)-m$TRP[i], as.numeric(t)+m$TRP[i])),
           expr = m$r[i,t]
         )
     )
@@ -521,38 +522,38 @@ model <- function(data){
   
   # Maximum number of usage periods in a day
   # ----------------------------------------
-  m$max_num_usage <- Constraint(
+  m$max_num_usage <- romo::Constraint(
     name = "max_num_usage",
-    iterator = Iter(i %inset% m$I),
+    iterator = romo::Iter(i %inset% m$I),
     expr = (
-      Sum(
-        iterator = Iter(t %inset% m$T),
+      romo::Sum(
+        iterator = romo::Iter(t %inset% m$T),
         expr = m$u[i,t]
       )
-      <= m$DFP[i] - m$CTFP[i]
+      <= m$UP[i] - m$CUP[i]
     )
   )
   
   
   # Maximum and minimum number of resources of a group
   # --------------------------------------------------
-  m$min_group <- Constraint(
+  m$min_group <- romo::Constraint(
     name = "min_group",
-    iterator = Iter(g %inset% m$G, t %inset% m$T),
+    iterator = romo::Iter(g %inset% m$G, t %inset% m$T),
     expr = (
-      m$nMin[g,t]*m$y[as.numeric(t)-1] <= Sum(
-        iterator = Iter(i %inset% m$G_I(g)),
+      m$nMin[g,t]*m$y[as.numeric(t)-1] <= romo::Sum(
+        iterator = romo::Iter(i %inset% m$G_I(g)),
         expr = m$w[i,t] + m$mu[g,t]
       )
     )
   )
   
-  m$max_group <- Constraint(
+  m$max_group <- romo::Constraint(
     name = "max_group",
-    iterator = Iter(g %inset% m$G, t %inset% m$T),
+    iterator = romo::Iter(g %inset% m$G, t %inset% m$T),
     expr = (
-      Sum(
-        iterator = Iter(i %inset% m$G_I(g)),
+      romo::Sum(
+        iterator = romo::Iter(i %inset% m$G_I(g)),
         expr = m$w[i,t]
       )
       <= m$nMax[g,t]*m$y[as.numeric(t)-1] 
@@ -562,43 +563,43 @@ model <- function(data){
   
   # Logical
   # -------
-  m$logical_1 <- Constraint(
+  m$logical_1 <- romo::Constraint(
     name = "logical_1",
-    iterator = Iter(i %inset% m$I),
+    iterator = romo::Iter(i %inset% m$I),
     expr = (
-      Sum(
-        iterator = Iter(t %inset% m$T),
+      romo::Sum(
+        iterator = romo::Iter(t %inset% m$T),
         expr = as.numeric(t)*m$e[i,t]
       )
       >= 
-        Sum(
-          iterator = Iter(t %inset% m$T),
+        romo::Sum(
+          iterator = romo::Iter(t %inset% m$T),
           as.numeric(t)*m$s[i,t]
         )
     )
   )
   
-  m$logical_2 <- Constraint(
+  m$logical_2 <- romo::Constraint(
     name = "logical_2",
-    iterator = Iter(i %inset% m$I),
+    iterator = romo::Iter(i %inset% m$I),
     expr = (
-      Sum(
-        iterator = Iter(t %inset% m$T),
+      romo::Sum(
+        iterator = romo::Iter(t %inset% m$T),
         expr = m$e[i,t]
       )
       <= 1
     )
   )
   
-  m$logical_3 <- Constraint(
+  m$logical_3 <- romo::Constraint(
     name = "logical_3",
-    iterator = Iter(i %inset% m$I, t %inset% m$T),
+    iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
-      m$r[i,t] + m$fl[i,t] <= m$u[i,t]
+      m$r[i,t] + m$tr[i,t] <= m$u[i,t]
     )
   )
   
-  m$logical_4 <- Constraint(
+  m$logical_4 <- romo::Constraint(
     name = "logical_4",
     expr = (
       m$y[0] == 1

@@ -16,4 +16,5 @@ Imports:
     lpSolveAPI,
     colorRamps,
     plotly,
-    slam
+    slam,
+    import

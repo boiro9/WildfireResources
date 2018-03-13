@@ -4,17 +4,11 @@
 \alias{wildfire_resources}
 \title{Model to solve the Aircraft Selection and Allocation problem (ASA) for the containment of a wildfire.}
 \usage{
-wildfire_resources(data, M_prime = 0, method = "exact", niters = 10,
-  solver = "gurobi", solver_params = list(TimeLimit = 600, OutputFlag = 0))
+wildfire_resources(data, solver = "gurobi", solver_params = list(TimeLimit =
+  600, OutputFlag = 0))
 }
 \arguments{
 \item{data}{a list with the needed information about aircrafts and wildfire. For more information see \code{\link{example_data}} function.}
-
-\item{M_prime}{penalization for the breach of the minimum aircrafts on a wildfire.}
-
-\item{method}{desired method, exact or heuristic. Options 'exact' or 'heuristic'.}
-
-\item{niters}{number of iterations for heuristic approach.}
 
 \item{solver}{solver name, 'gurobi', 'Rsymphony' or 'lpSolve'.}
 

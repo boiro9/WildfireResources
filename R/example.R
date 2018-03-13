@@ -8,14 +8,14 @@
 #' \tabular{ll}{
 #' \code{I}        \tab Set of aircrafts to select.\cr
 #' \code{Periods}  \tab Set of time Periods.\cr
-#' \code{FP}       \tab Maximum number of time periods with no rests.\cr
+#' \code{WP}       \tab Maximum number of time periods with no rests.\cr
 #' \code{RP}       \tab Number of time periods of rest.\cr
-#' \code{DFP}      \tab Maximum number time periods working.\cr
-#' \code{FBRP}     \tab Number of time periods flying from fire to rest place and vice versa.\cr
+#' \code{UP}       \tab Maximum number time periods working.\cr
+#' \code{TRP}      \tab Number of time periods flying from fire to rest place and vice versa.\cr
 #' \code{A}        \tab Number of time periods to arrive to the wildfire.\cr
-#' \code{CFP}      \tab Number of time periods worked currently with no rests.\cr
+#' \code{CWP}      \tab Number of time periods worked currently with no rests.\cr
 #' \code{CRP}      \tab Number of time periods rested currently.\cr
-#' \code{CTFP}     \tab Number of time periods worked currently.\cr
+#' \code{CUP}      \tab Number of time periods worked currently.\cr
 #' \code{C}        \tab Cost per period of the aircrafts.\cr
 #' \code{P}        \tab Cost of select the aircrafts.\cr
 #' \code{BPR}      \tab Base yield of the aircrafts in each time period.\cr
@@ -50,19 +50,19 @@ example_data <- function(){
   A <- c(0, 0)
   names(A) <- I
   
-  # Current flight period
-  CFP <- c(11, 0)
-  names(CFP) <- I
+  # Current work periods
+  CWP <- c(11, 0)
+  names(CWP) <- I
   
   # Current rest period
   CRP <- c(0, 0)
   names(CRP) <- I
   
-  CTFP <- c(11, 0)
-  names(CTFP) <- I
+  CUP <- c(11, 0)
+  names(CUP) <- I
   
-  FBRP <- c(1, 1)
-  names(FBRP) <- I
+  TRP <- c(1, 1)
+  names(TRP) <- I
   
   FP <- c(12, 12)
   names(FP) <- I
@@ -70,8 +70,8 @@ example_data <- function(){
   RP <- c(4, 4)
   names(RP) <- I
   
-  DFP <- c(48, 48)
-  names(DFP) <- I
+  UP <- c(48, 48)
+  names(UP) <- I
   
   ITW <- c(1, 0)
   names(ITW) <- I
@@ -105,13 +105,13 @@ example_data <- function(){
     P    = P,
     BPR  = BPR,
     A    = A,
-    CFP  = CFP,
+    CWP  = CWP,
     CRP  = CRP,
-    CTFP = CTFP,
-    FBRP = FBRP,
-    FP   = FP,
+    CUP  = CUP,
+    TRP  = TRP,
+    WP   = WP,
     RP   = RP,
-    DFP  = DFP,
+    UP   = UP,
     ITW  = ITW,
     IOW  = IOW,
     nMax = nMax,
