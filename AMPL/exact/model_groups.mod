@@ -168,10 +168,14 @@ subject to break_2 {i in I, t in T}:
 	else
 		CRP[i]*s[i,1] + sum{t1 in T_int[1,t]} r[i,t1]
 	
-	>= RP[i]*er[i,t]
+	>= min(t, RP[i])*er[i,t]
 ;
 
 subject to break_3 {i in I, t in T}:
+	sum{t1 in T_int[t, min(t+RP[i]-1), m)]} er[i,t1] >= r[i,t]
+;
+
+subject to break_4 {i in I, t in T}:
 	sum{t1 in T_int[max(1,t-TRP[i]),min(m,t+TRP[i])]} (r[i,t1]+tr[i,t1])
 	>= sum{t1 in T_int[max(1,t-TRP[i]),min(m,t+TRP[i])]} r[i,t]
 ;
@@ -211,7 +215,11 @@ subject to logical_3 {i in I, t in T}:
 	r[i,t] + tr[i,t] <= u[i,t]
 ;
 
-subject to logical_4:
+subject to logical_4 {i in I}:
+	sum{t in T} w[i,t] >= z[i]
+;
+
+subject to logical_5:
 	y[0] = 1
 ;
 
@@ -231,6 +239,3 @@ subject to logical_4:
 #	sum{t in T} s[i,t] <= 1
 #;
 
-#subject to logical_4_aux {i in I}:
-#	sum{t in T} w[i,t] >= z[i]
-#;

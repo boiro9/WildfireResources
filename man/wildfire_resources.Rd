@@ -23,4 +23,11 @@ Model to solve the Aircraft Selection and Allocation problem (ASA) for the conta
 \examples{
 data <- WildfireResources::example_data()
 WildfireResources::wildfire_resources(data, solver="lpSolveAPI")
+
+resources_file <- 'example/example1/Aeronaves1.csv'
+fire_file <- 'example/example1/Incendio4.csv'
+csvs <- WildfireResources::load_data(resources_file, fire_file)
+data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
+sol <- WildfireResources::wildfire_resources(data1)
+sol
 }

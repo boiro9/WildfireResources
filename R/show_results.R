@@ -99,8 +99,11 @@ plotscheduling <- function(WRF){
 #' @return data
 #' @export
 data.contention <- function(data, sol){
-  
-  periods <- 1:(max(which(sol$Y==1))+1)
+  if("Y" %in% names(sol)){
+    periods <- 1:(max(which(sol$Y==1))+1)
+  }else{
+    periods <- 1:dim(sol$Work)[2]
+  }
   
   contention <- numeric(length(periods))
   for(t in periods){
@@ -154,7 +157,12 @@ plotcontention <- function(df){
 #' @return the number of resources in each period.
 #' @export
 data_num_resources <- function(sol){
-  n_aero_period = slam::col_sums(sol$Work)[1:min(max(which(sol$Y==1))+1,length(sol$Y))]
+  if("Y" %in% names(sol)){
+    periods <- 1:(max(which(sol$Y==1))+1)
+  }else{
+    periods <- 1:dim(sol$Work)[2]
+  }
+  n_aero_period = slam::col_sums(sol$Work)[periods]
   df.n_aero_period <- data.frame(periods=as.numeric(names(n_aero_period)),
                               num = n_aero_period)
 
@@ -203,7 +211,11 @@ plot_num_resources <- function(df){
 #' @export
 data.performance <- function(data, sol){
   
-  periods <- 1:(max(which(sol$Y==1))+1)
+  if("Y" %in% names(sol)){
+    periods <- 1:(max(which(sol$Y==1))+1)
+  }else{
+    periods <- 1:dim(sol$Work)[2]
+  }
   
   performance <- numeric(length(periods))
   for(t in periods){

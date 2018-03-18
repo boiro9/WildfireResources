@@ -64,8 +64,8 @@ example_data <- function(){
   TRP <- c(1, 1)
   names(TRP) <- I
   
-  FP <- c(12, 12)
-  names(FP) <- I
+  WP <- c(12, 12)
+  names(WP) <- I
   
   RP <- c(4, 4)
   names(RP) <- I
@@ -86,15 +86,15 @@ example_data <- function(){
   PER <- c(5.6, 0.1, 0.1, 0.2)
   NVC <- c(70, 140, 200, 270)
   
-  G <- c("air")
-  G_I <- list("air"=c("BellB412_1", "BellB412_2"))
+  G <- c("air", "air1")
+  G_I <- list("air"=c("BellB412_1"), "air1"=c("BellB412_2"))
 
   nMax <- array(2,
-                dim = c(1, length(TP)), 
-                dimnames = list(c('air'), TP))
+                dim = c(2, length(TP)), 
+                dimnames = list(c('air', 'air1'), TP))
   nMin <- array(0, 
-                dim = c(1, length(TP)), 
-                dimnames = list(c('air'), TP))
+                dim = c(2, length(TP)), 
+                dimnames = list(c('air', 'air1'), TP))
 
   data = list(
     I    = I,

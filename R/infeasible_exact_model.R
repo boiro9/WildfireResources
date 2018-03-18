@@ -1,7 +1,7 @@
 
-# ---------------------------------------------------------------------------- #
-# Exact model
-# ---------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
+# Infeasible Exact model
+# -----------------------------------------------------------------------------
 
 #' Model to solve the exact problem of Aircraft Selection and Allocation (ASA) for the containment of a wildfire.
 #'
@@ -16,157 +16,168 @@
 #'
 #' @examples
 #' data <- WildfireResources::example_data()
-#' WildfireResources::exact_model(data, solver="gurobi")
+#' WildfireResources::inf_exact_model(data, solver="gurobi")
 #' 
 #' resources_file <- 'example/example1/Aeronaves1.csv'
 #' fire_file <- 'example/example1/Incendio4.csv'
 #' csvs <- WildfireResources::load_data(resources_file, fire_file)
 #' data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
-#' sol <- WildfireResources::exact_model(data1)
-#' sol
-exact_model <- function(
+#' sol1 <- WildfireResources::inf_exact_model(data1)
+#' sol1
+inf_exact_model <- function(
   data, solver="gurobi", solver_params=list(TimeLimit=600, OutputFlag=0)){
   # ---------------------------------------------------------------------------
   # Start time
   # ---------------------------------------------------------------------------
-
+  
   start.time <- Sys.time()
   
   # ---------------------------------------------------------------------------
   # Load model
   # ---------------------------------------------------------------------------
-  exactmod <- model(data)
+  inf_exact_mod <- scheduling_model(data)
   
-  results <- romo::Solve(exactmod, solver)
-
+  results <- romo::Solve(inf_exact_mod, solver)
+  
   if(results$status=="OPTIMAL"){
-    objects <- romo::get_objects(exactmod)
+    objects <- romo::get_objects(inf_exact_mod)
     x <- objects$variables$value
     
     # S[i,t]
-    S <- matrix(nrow = length(exactmod$I@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(S) <- exactmod$I@elements
-    colnames(S) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        S[i, t] <- exactmod$s[i,t]@value
+    S <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                ncol = length(inf_exact_mod$T@elements))
+    row.names(S) <- inf_exact_mod$I@elements
+    colnames(S) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        S[i, t] <- inf_exact_mod$s[i,t]@value
       }
     }
-
-
+    
+    
     # TR[i,t]
-    TR <- matrix(nrow = length(exactmod$I@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(TR) <- exactmod$I@elements
-    colnames(TR) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        TR[i, t] <- exactmod$tr[i,t]@value
+    TR <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                 ncol = length(inf_exact_mod$T@elements))
+    row.names(TR) <- inf_exact_mod$I@elements
+    colnames(TR) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        TR[i, t] <- inf_exact_mod$tr[i,t]@value
       }
     }
-
+    
     # R[i,t]
-    R <- matrix(nrow = length(exactmod$I@elements), 
-                ncol = length(exactmod$T@elements))
-    row.names(R) <- exactmod$I@elements
-    colnames(R) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        R[i, t] <- exactmod$r[i,t]@value
+    R <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                ncol = length(inf_exact_mod$T@elements))
+    row.names(R) <- inf_exact_mod$I@elements
+    colnames(R) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        R[i, t] <- inf_exact_mod$r[i,t]@value
       }
     }
     
     # ER[i,t]
-    ER <- matrix(nrow = length(exactmod$I@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(ER) <- exactmod$I@elements
-    colnames(ER) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        ER[i, t] <- exactmod$er[i,t]@value
+    ER <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                 ncol = length(inf_exact_mod$T@elements))
+    row.names(ER) <- inf_exact_mod$I@elements
+    colnames(ER) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        ER[i, t] <- inf_exact_mod$er[i,t]@value
       }
     }
-
+    
     # E[i,t]
-    E <- matrix(nrow = length(exactmod$I@elements), 
-                ncol = length(exactmod$T@elements))
-    row.names(E) <- exactmod$I@elements
-    colnames(E) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        E[i, t] <- exactmod$e[i,t]@value
+    E <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                ncol = length(inf_exact_mod$T@elements))
+    row.names(E) <- inf_exact_mod$I@elements
+    colnames(E) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        E[i, t] <- inf_exact_mod$e[i,t]@value
       }
     }
-
+    
     # U[i,t]
-    U <- matrix(nrow = length(exactmod$I@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(U) <- exactmod$I@elements
-    colnames(U) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        uexpr <- exactmod$u[i,t]@expr
+    U <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                ncol = length(inf_exact_mod$T@elements))
+    row.names(U) <- inf_exact_mod$I@elements
+    colnames(U) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        uexpr <- inf_exact_mod$u[i,t]@expr
         lenuexpr <- length(uexpr@variables)
         U[i, t] <- uexpr@variables%*%x[1:lenuexpr] + uexpr@independent
       }
     }
-
+    
     # W[i,t]
-    W <- matrix(nrow = length(exactmod$I@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(W) <- exactmod$I@elements
-    colnames(W) <- exactmod$T@elements
-    for(i in exactmod$I@elements){
-      for(t in exactmod$T@elements){
-        wexpr <- exactmod$w[i,t]@expr
+    W <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                ncol = length(inf_exact_mod$T@elements))
+    row.names(W) <- inf_exact_mod$I@elements
+    colnames(W) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        wexpr <- inf_exact_mod$w[i,t]@expr
         lenwexpr <- length(wexpr@variables)
         W[i, t] <- wexpr@variables%*%x[1:lenwexpr] + wexpr@independent
       }
     }
-
+    
     # Z[i]
-    Z <- numeric(length(exactmod$I@elements))
-    names(Z) <- exactmod$I@elements
-    for(i in exactmod$I@elements){
-      zexpr <- exactmod$z[i]@expr
+    Z <- numeric(length(inf_exact_mod$I@elements))
+    names(Z) <- inf_exact_mod$I@elements
+    for(i in inf_exact_mod$I@elements){
+      zexpr <- inf_exact_mod$z[i]@expr
       lenzexpr <- length(zexpr@variables)
       Z[i] <- zexpr@variables%*%x[1:lenzexpr] + zexpr@independent
     }
-
+    
     # MU[g,t]
-    MU <- matrix(nrow = length(exactmod$G@elements), 
-               ncol = length(exactmod$T@elements))
-    row.names(MU) <- exactmod$G@elements
-    colnames(MU) <- exactmod$T@elements
-    for(g in exactmod$G@elements){
-      for(t in exactmod$T@elements){
-        MU[g, t] <- exactmod$mu[g,t]@value
+    MU <- matrix(nrow = length(inf_exact_mod$G@elements), 
+                 ncol = length(inf_exact_mod$T@elements))
+    row.names(MU) <- inf_exact_mod$G@elements
+    colnames(MU) <- inf_exact_mod$T@elements
+    for(g in inf_exact_mod$G@elements){
+      for(t in inf_exact_mod$T@elements){
+        MU[g, t] <- inf_exact_mod$mu[g,t]@value
       }
     }
-
-    # Y:
-    Y <- numeric(length(exactmod$T@elements))
-    names(Y) <- exactmod$T@elements
-    for(t in exactmod$T@elements){
-      Y[t] <- exactmod$y[t]@value
+    
+    # cr:
+    cr <- matrix(nrow = length(inf_exact_mod$I@elements), 
+                 ncol = length(inf_exact_mod$T@elements))
+    row.names(cr) <- inf_exact_mod$I@elements
+    colnames(cr) <- inf_exact_mod$T@elements
+    for(i in inf_exact_mod$I@elements){
+      for(t in inf_exact_mod$T@elements){
+        cr_expr <- inf_exact_mod$cr[i,t]@expr
+        len_cr_expr <- length(cr_expr@variables)
+        cr[i, t] <- cr_expr@variables%*%x[1:len_cr_expr] + cr_expr@independent
+      }
     }
     
     # Cost:
-    cost_expr <- exactmod$Cost@expr
+    cost_expr <- inf_exact_mod$Cost@expr
     len_cost_expr <- length(cost_expr@variables)
     cost <- cost_expr@variables%*%x[1:len_cost_expr] + cost_expr@independent
     
+    # Efficiency:
+    eff_expr <- inf_exact_mod$Efficiency@expr
+    len_eff_expr <- length(eff_expr@variables)
+    efficiency <- eff_expr@variables%*%x[1:len_eff_expr] + eff_expr@independent
+    
     # Penalty:
-    pen_expr <- exactmod$Penalty@expr
+    pen_expr <- inf_exact_mod$Penalty@expr
     len_pen_expr <- length(pen_expr@variables)
     penalty <- pen_expr@variables%*%x[1:len_pen_expr] + pen_expr@independent
     
-    results <- list(model="exact",
+    results <- list(model="inf_exact_model",
                     sol_result="OPTIMAL",
                     solver_result=results,
                     time = difftime(Sys.time(), start.time, units="secs"),
-                    obj=cost+penalty,
+                    obj=efficiency+penalty,
                     cost=cost,
                     penalty=penalty,
                     Start=S,
@@ -176,22 +187,21 @@ exact_model <- function(
                     Scheduling=U,
                     Work=W,
                     Selection=Z,
-                    mu=MU,
-                    Y=Y)
+                    mu=MU)
   }else{
-    results <- list(model="exact",
+    results <- list(model="inf_exact_model",
                     sol_result="INFEASIBLE", 
                     solver_result=results,
                     cost = NA,
                     time = difftime(Sys.time(), start.time, units="secs"))
   }
-
+  
   return(results)
 }
 # --------------------------------------------------------------------------- #
 
 
-# model -----------------------------------------------------------------------
+# scheduling_model ------------------------------------------------------------
 #' Model
 #'
 #' @param data data information.
@@ -201,15 +211,14 @@ exact_model <- function(
 #'
 #' @examples 
 #' data <- WildfireResources::example_data()
-#' m <- WildfireResources::model(data)
+#' m <- WildfireResources::scheduling_model(data)
 #' 
 #' resources_file <- 'example/example1/Aeronaves1.csv'
 #' fire_file <- 'example/example1/Incendio4.csv'
 #' csvs <- WildfireResources::load_data(resources_file, fire_file)
 #' data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
-#' sol <- WildfireResources::model(data1)
-#' sol
-model <- function(data){
+#' m1 <- WildfireResources::scheduling_model(data1)
+scheduling_model <- function(data){
   import::from(romo, "%inset%")
   m <- romo::Model()
   
@@ -235,13 +244,13 @@ model <- function(data){
     t2 <- as.numeric(t2)
     if(t1<=t2){
       return(romo::Set(name="T_int", 
-                 elements=as.character(
-                   max(1, as.numeric(t1)):min(m$np, as.numeric(t2)))
+                       elements=as.character(
+                         max(1, as.numeric(t1)):min(m$np, as.numeric(t2)))
       )
       )
     }else{
       return(romo::Set(name="T_int", 
-                 elements=c()
+                       elements=c()
       )
       )
     }
@@ -286,8 +295,7 @@ model <- function(data){
   # Auxiliar
   # ========
   m$PR <- m$BPR * m$EF
-  m$M_prime <- 100*(sum(m$C) + sum(m$NVC))
-  m$M <- sum(m$PER) + sum(m$PR)
+  m$M_prime <- sum(m$PR)
   
   
   # ===========================================================================
@@ -304,7 +312,6 @@ model <- function(data){
   
   # Wildfire
   # ========
-  m$y <- romo::Var(name = "y", sets = romo::ListSets(m$T0), type = "binary")
   m$mu <- romo::Var(name = "mu", sets = romo::ListSets(m$G, m$T), type = "continuous", lb=0)
   
   # Auxiliary
@@ -355,9 +362,15 @@ model <- function(data){
       + romo::Sum(
         iterator = romo::Iter(i2 %inset% m$I), 
         expr = m$P[i2]*m$z[i2]) 
-      + romo::Sum(
-        iterator = romo::Iter(t2 %inset% m$T), 
-        expr = m$NVC[t2]*m$y[as.numeric(t2)-1])
+      + sum(m$NVC)
+    )
+  )
+  
+  m$Efficiency <- romo::AuxVar(
+    name="Efficiency",
+    expr = romo::Sum(
+      iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
+      expr = m$PR[i,t]*m$w[i,t]
     )
   )
   
@@ -366,53 +379,21 @@ model <- function(data){
     expr = romo::Sum(
       iterator = romo::Iter(g %inset% m$G, t %inset% m$T),
       expr = m$M_prime*m$mu[g, t]
-    ) + m$y[m$np]
+    )
   )
   
   
   # Total Cost
   # ----------
   m$Total_Cost <- romo::Objective(
-    name = "Total_Cost",
+    name = "Total_Efficiency",
     sense = "minimize",
-    expr = m$Cost + m$Penalty
+    expr = - m$Efficiency + m$Penalty
   )
   
   
   # Constraints
   # ===========
-  
-  # Wildfire containment
-  # --------------------
-  m$cont_1 <- romo::Constraint(
-    name = "cont_1",
-    expr = (
-      romo::Sum(
-        iterator = romo::Iter(t1 %inset% m$T), 
-        expr = m$PER[t1]*m$y[as.numeric(t1)-1]) 
-      <= 
-        romo::Sum(
-          iterator = romo::Iter(i %inset% m$I, t2 %inset% m$T),
-          expr = m$PR[i,t2]*m$w[i,t2]
-        )
-    )
-  )
-  
-  m$cont_2 <- romo::Constraint(
-    name = "cont_2",
-    iterator = romo::Iter(t %inset% m$T),
-    expr = (
-      romo::Sum(
-        iterator = romo::Iter(t1 %inset% m$T_int(1, t)), 
-        expr = m$PER[t1]*m$y[as.numeric(t)-1]
-      ) <= romo::Sum(
-        iterator = romo::Iter(i %inset% m$I, t2 %inset% m$T_int(1, t)),
-        expr = m$PR[i,t2]*m$w[i,t2]
-      ) 
-      + m$M*m$y[t]
-    )
-  )
-  
   
   # Start of activity
   # -----------------
@@ -513,7 +494,7 @@ model <- function(data){
         m$CRP[i]*m$s[i,1] + romo::Sum(
           iterator = romo::Iter(t1 %inset% m$T_int(1,t)), 
           expr = m$r[i,t1]
-        ) >= m$RP[i]*m$er[i,t]
+        ) >= min(as.numeric(t), m$RP[i])*m$er[i,t]
       } 
     )
   )
@@ -566,7 +547,7 @@ model <- function(data){
     name = "min_group",
     iterator = romo::Iter(g %inset% m$G, t %inset% m$T),
     expr = (
-      m$nMin[g,t]*m$y[as.numeric(t)-1] <= romo::Sum(
+      m$nMin[g,t] <= romo::Sum(
         iterator = romo::Iter(i %inset% m$G_I(g)),
         expr = m$w[i,t]
       ) + m$mu[g,t]
@@ -581,7 +562,7 @@ model <- function(data){
         iterator = romo::Iter(i %inset% m$G_I(g)),
         expr = m$w[i,t]
       )
-      <= m$nMax[g,t]*m$y[as.numeric(t)-1] 
+      <= m$nMax[g,t]
     )
   )
   
@@ -632,13 +613,6 @@ model <- function(data){
         iterator = romo::Iter(t %inset% m$T),
         expr = m$w[i,t]
       ) >= m$z[i]
-    )
-  )
-  
-  m$logical_5 <- romo::Constraint(
-    name = "logical_5",
-    expr = (
-      m$y[0] == 1
     )
   )
   
