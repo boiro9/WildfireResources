@@ -35,10 +35,27 @@ data.scheduling <- function(sol){
 #' @return scheduling plot.
 #'
 #' @export
+#' 
+#' @example 
+#' WRF <- matrix(c(3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0,
+#'                 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0,
+#'                 0, 0, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3,
+#'                 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0,
+#'                 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0,
+#'                 1, 1, 1, 3, 2, 2, 2, 2, 3, 1, 1, 1, 1, 3,
+#'                 1, 1, 1, 3, 2, 2, 2, 2, 3, 1, 1, 1, 1, 3,
+#'                 1, 1, 1, 1, 1, 1, 3, 2, 2, 2, 2, 3, 1, 3,
+#'                 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0),
+#'                 byrow=T, ncol=14)
+#' colnames(WRF) <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+#' rownames(WRF) <- c('BellB412_1', 'BellB412_2', 'BellB212_1', 'BellB212_2', 
+#'                    'Ka32_1', 'Ka32_2', 'BellB407_1', 'BellB407_2' ,
+#'                    'BellB407_3')
+#' WildfireResources::plotscheduling(WRF)
 plotscheduling <- function(WRF){
+  import::from(plotly, "%>%")
   df <- data.frame(aero=numeric(), start=numeric(), end=numeric(), 
                    do=numeric())
-  import::from(plotly, "%>%")
   for(i in 1:dim(WRF)[1]){
     cont=T
     for(j in 1:dim(WRF)[2]){
@@ -53,22 +70,14 @@ plotscheduling <- function(WRF){
   }
   df$start<-as.numeric(df$start)
   df$end<-as.numeric(df$end)
+  df$do <- factor(df$do, c('Work', 'Rest', 'Travel'))
 
-  colors=c()
-  if(sum(df$do=="Travel")>0){
-    colors <- c(colors, "deepskyblue")
-  }
-  if(sum(df$do=="Rest")>0){
-    colors <- c(colors, "green3")
-  }
-  if(sum(df$do=="Work")>0){
-    colors <- c(colors, "firebrick1")
-  }
+  colors=c("firebrick1", "green3", "dodgerblue3")
 
   plotly::plot_ly(df, x =~start, xend=~end,
           y=~aero, yend=~aero,
-          colors = c("dodgerblue3","green3","firebrick1")) %>%
-    plotly::add_segments(color = ~do, type="scatter",
+          colors=colors) %>%
+    plotly::add_segments(color=~do, type="scatter",
                          mode = 'lines', line = list(width = 3))%>%
     plotly::layout(xaxis = list(title = '<b>Periods</b>',
                                 zeroline=F,
@@ -100,7 +109,7 @@ plotscheduling <- function(WRF){
 #' @export
 data.contention <- function(data, sol){
   if("Y" %in% names(sol)){
-    periods <- 1:(max(which(sol$Y==1))+1)
+    periods <- 1:(max(which(sol$Y==1),0)+1)
   }else{
     periods <- 1:dim(sol$Work)[2]
   }
@@ -158,7 +167,7 @@ plotcontention <- function(df){
 #' @export
 data_num_resources <- function(sol){
   if("Y" %in% names(sol)){
-    periods <- 1:(max(which(sol$Y==1))+1)
+    periods <- 1:(max(which(sol$Y==1),0)+1)
   }else{
     periods <- 1:dim(sol$Work)[2]
   }
@@ -210,13 +219,11 @@ plot_num_resources <- function(df){
 #'
 #' @export
 data.performance <- function(data, sol){
-  
   if("Y" %in% names(sol)){
-    periods <- 1:(max(which(sol$Y==1))+1)
+    periods <- 1:(max(which(sol$Y==1),0)+1)
   }else{
     periods <- 1:dim(sol$Work)[2]
   }
-  
   performance <- numeric(length(periods))
   for(t in periods){
     performance[t] <- sum(sol$Work[,t]*data$BPR*data$EF[, t])
