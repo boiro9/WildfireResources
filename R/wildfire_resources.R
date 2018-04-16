@@ -11,24 +11,24 @@
 #' data <- WildfireResources::example_data()
 #' WildfireResources::wildfire_resources(data, solver="lpSolveAPI")
 #' 
-#' resources_file <- 'example/example1/Aeronaves1.csv'
-#' fire_file <- 'example/example1/Incendio4.csv'
+#' resources_file <- 'example/feasible/Resources.csv'
+#' fire_file <- 'example/feasible/Fire.csv'
 #' csvs <- WildfireResources::load_data(resources_file, fire_file)
 #' data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
 #' sol <- WildfireResources::wildfire_resources(data1)
 #' sol
 wildfire_resources <- function(data,
                                solver="gurobi", 
-                               solver_params=list(TimeLimit=600, OutputFlag=0)){
+                               solver_options=list(TimeLimit=600, OutputFlag=0)){
 
   results <- WildfireResources::exact_model(
-    data, solver=solver, solver_params=solver_params)
+    data, solver=solver, solver_options=solver_options)
 
   if(results$sol_result == "OPTIMAL"){
     return(list(st_model = results, nd_model = NULL))
   }else{
     inf_model_result <- WildfireResources::inf_exact_model(
-      data, solver=solver, solver_params=solver_params)
+      data, solver=solver, solver_options=solver_options)
   }
   
   return(list(st_model = results, nd_model = inf_model_result))
