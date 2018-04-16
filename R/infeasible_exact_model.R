@@ -25,7 +25,7 @@
 #' sol1 <- WildfireResources::inf_exact_model(data1)
 #' sol1
 inf_exact_model <- function(
-  data, solver="gurobi", solver_params=list(TimeLimit=600, OutputFlag=0)){
+  data, solver="gurobi", solver_options=list(TimeLimit=600, OutputFlag=0)){
   # ---------------------------------------------------------------------------
   # Start time
   # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ inf_exact_model <- function(
   # ---------------------------------------------------------------------------
   inf_exact_mod <- scheduling_model(data)
   
-  results <- romo::Solve(inf_exact_mod, solver)
+  results <- romo::Solve(inf_exact_mod, solver, solver_options=solver_options)
   
   if(results$status=="OPTIMAL"){
     objects <- romo::get_objects(inf_exact_mod)
@@ -158,10 +158,17 @@ inf_exact_model <- function(
       }
     }
     
+    # Res_Cost:
+    res_cost_expr <- inf_exact_mod$Res_Cost@expr
+    len_res_cost_expr <- length(res_cost_expr@variables)
+    res_cost <- (res_cost_expr@variables%*%x[1:len_res_cost_expr] + 
+                   res_cost_expr@independent)[1]
+    
+    # Fire_Cost:
+    fire_cost <- sum(inf_exact_mod$NVC)
+    
     # Cost:
-    cost_expr <- inf_exact_mod$Cost@expr
-    len_cost_expr <- length(cost_expr@variables)
-    cost <- cost_expr@variables%*%x[1:len_cost_expr] + cost_expr@independent
+    cost <- res_cost + fire_cost
     
     # Efficiency:
     eff_expr <- inf_exact_mod$Efficiency@expr
@@ -179,6 +186,8 @@ inf_exact_model <- function(
                     time = difftime(Sys.time(), start.time, units="secs"),
                     obj=efficiency+penalty,
                     cost=cost,
+                    res_cost=res_cost,
+                    fire_cost=fire_cost,
                     penalty=penalty,
                     Start=S,
                     Travel=TR,
@@ -193,6 +202,8 @@ inf_exact_model <- function(
                     sol_result="INFEASIBLE", 
                     solver_result=results,
                     cost = NA,
+                    res_cost=NA,
+                    fire_cost=NA,
                     time = difftime(Sys.time(), start.time, units="secs"))
   }
   
@@ -353,16 +364,15 @@ scheduling_model <- function(data){
   
   # Auxiliary variables
   # -------------------
-  m$Cost <- romo::AuxVar(
-    name="Cost",
+  m$Res_Cost <- romo::AuxVar(
+    name="Res_Cost",
     expr = (
       romo::Sum(
         iterator = romo::Iter(i1 %inset% m$I, t1 %inset% m$T), 
         expr = m$C[i1]*m$u[i1, t1]) 
       + romo::Sum(
         iterator = romo::Iter(i2 %inset% m$I), 
-        expr = m$P[i2]*m$z[i2]) 
-      + sum(m$NVC)
+        expr = m$P[i2]*m$z[i2])
     )
   )
   
@@ -445,7 +455,18 @@ scheduling_model <- function(data){
     name="cr", 
     iterator=romo::Iter(i %inset% m$I, t %inset% m$T), 
     expr = (
-      if(m$ITW[i] == FALSE && m$IOW[i] == FALSE){
+      if(m$ITW[i] == T | m$IOW[i] == T){
+        
+        ((as.numeric(t)+m$CWP[i]-m$CRP[i])*m$s[i,1]) + romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(2, t)),
+          expr = ((as.numeric(t)+1-as.numeric(t1)+m$WP[i])*m$s[i,t1])
+        ) + romo::Sum(
+          iterator = romo::Iter(t2 %inset% m$T_int(1, t)),
+          expr = -(as.numeric(t)-as.numeric(t2))*m$e[i,t2] - m$r[i,t2] - m$WP[i]*m$er[i,t2]
+        )
+        
+      }else{
+
         romo::Sum(
           iterator = romo::Iter(t1 %inset% m$T_int(1, t)),
           expr = ((as.numeric(t)+1-as.numeric(t1))*m$s[i, t1] 
@@ -454,14 +475,7 @@ scheduling_model <- function(data){
                   - m$WP[i]*m$er[i,t1]
           )
         )
-      }else{
-        ((as.numeric(t)+m$CWP[i]-m$CRP[i])*m$s[i,1]) + romo::Sum(
-          iterator = romo::Iter(t1 %inset% m$T_int(2, t)),
-          expr = ((as.numeric(t)+1-as.numeric(t1)+m$WP[i])*m$s[i,t1])
-        ) + romo::Sum(
-          iterator = romo::Iter(t2 %inset% m$T_int(1, t)),
-          expr = -(as.numeric(t)-as.numeric(t2))*m$e[i,t2] - m$r[i,t2] - m$WP[i]*m$er[i,t2]
-        )
+        
       }
     )
   )
@@ -485,16 +499,20 @@ scheduling_model <- function(data){
     name = "break_2",
     iterator = romo::Iter(i %inset% m$I, t %inset% m$T),
     expr = (
-      if(as.numeric(t)-m$RP[i] >= 0){
+      if(as.numeric(t)-m$RP[i] < 0){
+
+        m$CRP[i]*m$s[i,1] + romo::Sum(
+          iterator = romo::Iter(t1 %inset% m$T_int(1,t)), 
+          expr = m$r[i,t1]
+        ) >= m$er[i,t]*min(as.numeric(t), m$RP[i])
+        
+      }else{
+        
         romo::Sum(
           iterator = romo::Iter(t1 %inset% m$T_int(as.numeric(t)-m$RP[i]+1,t)),
           expr = m$r[i,t1]
         ) >= m$RP[i]*m$er[i,t]
-      }else{
-        m$CRP[i]*m$s[i,1] + romo::Sum(
-          iterator = romo::Iter(t1 %inset% m$T_int(1,t)), 
-          expr = m$r[i,t1]
-        ) >= min(as.numeric(t), m$RP[i])*m$er[i,t]
+        
       } 
     )
   )

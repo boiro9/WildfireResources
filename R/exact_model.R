@@ -16,16 +16,16 @@
 #'
 #' @examples
 #' data <- WildfireResources::example_data()
-#' WildfireResources::exact_model(data, solver="gurobi")
+#' sol <- WildfireResources::exact_model(data, solver="gurobi")
 #' 
-#' resources_file <- 'example/example1/Aeronaves1.csv'
-#' fire_file <- 'example/example1/Incendio4.csv'
+#' resources_file <- 'example/feasible/Resources.csv'
+#' fire_file <- 'example/feasible/Fire.csv'
 #' csvs <- WildfireResources::load_data(resources_file, fire_file)
 #' data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
 #' sol <- WildfireResources::exact_model(data1)
 #' sol
 exact_model <- function(
-  data, solver="gurobi", solver_params=list(TimeLimit=600, OutputFlag=0)){
+  data, solver="gurobi", solver_options=list(TimeLimit=600, OutputFlag=0)){
   # ---------------------------------------------------------------------------
   # Start time
   # ---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ exact_model <- function(
   # ---------------------------------------------------------------------------
   exactmod <- model(data)
   
-  results <- romo::Solve(exactmod, solver)
+  results <- romo::Solve(exactmod, solver, solver_options=solver_options)
 
   if(results$status=="OPTIMAL"){
     objects <- romo::get_objects(exactmod)
@@ -152,10 +152,23 @@ exact_model <- function(
       Y[t] <- exactmod$y[t]@value
     }
     
+    # Res_Cost:
+    res_cost_expr <- exactmod$Res_Cost@expr
+    len_res_cost_expr <- length(res_cost_expr@variables)
+    res_cost <- (res_cost_expr@variables%*%x[1:len_res_cost_expr] + 
+                   res_cost_expr@independent)[1]
+    
+    # Fire_Cost:
+    fire_cost_expr <- exactmod$Fire_Cost@expr
+    len_fire_cost_expr <- length(fire_cost_expr@variables)
+    fire_cost <- (fire_cost_expr@variables%*%x[1:len_fire_cost_expr] + 
+                    fire_cost_expr@independent)[1]
+    
     # Cost:
     cost_expr <- exactmod$Cost@expr
     len_cost_expr <- length(cost_expr@variables)
-    cost <- cost_expr@variables%*%x[1:len_cost_expr] + cost_expr@independent
+    cost <- (cost_expr@variables%*%x[1:len_cost_expr] + 
+               cost_expr@independent)[1]
     
     # Penalty:
     pen_expr <- exactmod$Penalty@expr
@@ -168,6 +181,8 @@ exact_model <- function(
                     time = difftime(Sys.time(), start.time, units="secs"),
                     obj=cost+penalty,
                     cost=cost,
+                    res_cost=res_cost,
+                    fire_cost=fire_cost,
                     penalty=penalty,
                     Start=S,
                     Travel=TR,
@@ -183,6 +198,8 @@ exact_model <- function(
                     sol_result="INFEASIBLE", 
                     solver_result=results,
                     cost = NA,
+                    res_cost=NA,
+                    fire_cost=NA,
                     time = difftime(Sys.time(), start.time, units="secs"))
   }
 
@@ -346,19 +363,30 @@ model <- function(data){
   
   # Auxiliary variables
   # -------------------
-  m$Cost <- romo::AuxVar(
-    name="Cost",
+  m$Res_Cost <- romo::AuxVar(
+    name="Res_Cost",
     expr = (
       romo::Sum(
         iterator = romo::Iter(i1 %inset% m$I, t1 %inset% m$T), 
         expr = m$C[i1]*m$u[i1, t1]) 
       + romo::Sum(
         iterator = romo::Iter(i2 %inset% m$I), 
-        expr = m$P[i2]*m$z[i2]) 
-      + romo::Sum(
+        expr = m$P[i2]*m$z[i2])
+    )
+  )
+  
+  m$Fire_Cost <- romo::AuxVar(
+    name="Fire_Cost",
+    expr = (
+      romo::Sum(
         iterator = romo::Iter(t2 %inset% m$T), 
         expr = m$NVC[t2]*m$y[as.numeric(t2)-1])
     )
+  )
+  
+  m$Cost <- romo::AuxVar(
+    name="Cost",
+    expr = (m$Res_Cost + m$Fire_Cost)
   )
   
   m$Penalty <- romo::AuxVar(
