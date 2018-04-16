@@ -165,20 +165,28 @@ plotcontention <- function(df){
 #'
 #' @return the number of resources in each period.
 #' @export
-data_num_resources <- function(sol){
+data_num_resources <- function(data, sol){
   if("Y" %in% names(sol)){
     periods <- 1:(max(which(sol$Y==1),0)+1)
   }else{
     periods <- 1:dim(sol$Work)[2]
   }
-  n_aero_period = slam::col_sums(sol$Work)[periods]
-  df.n_aero_period <- data.frame(periods=as.numeric(names(n_aero_period)),
-                              num = n_aero_period)
+  
+  df.n_resources_period <- data.frame(periods=periods)
+  for(g in data$G){
+    data_group <- sol$Work[data$G_I[[g]], periods]
+    if(!is.null(dim(data_group))){
+      df.n_resources_period[g] <- slam::col_sums(data_group)
+    }else{
+      df.n_resources_period[g] <- data_group
+    }
+  }
 
   if(sol$model=="rest_model"){
-    df.n_aero_period <- df.n_aero_period[-dim(df.n_aero_period)[1],]
+    df.n_resources_period <- 
+      df.n_resources_period[-dim(df.n_resources_period)[1],]
   }
-  return(df.n_aero_period)
+  return(df.n_resources_period)
 }
 # --------------------------------------------------------------------------- #
 
@@ -192,7 +200,7 @@ data_num_resources <- function(sol){
 #' @export
 plot_num_resources <- function(df){
   import::from(plotly, "%>%")
-  plotly::plot_ly(df, x=~periods, y=~num, type="bar") %>%
+  p <- plotly::plot_ly(df, type="bar") %>%
     plotly::layout(xaxis = list(title = '<b>Periods</b>',
                                 zeroline=F,
                                 autotick=F),
@@ -204,6 +212,11 @@ plot_num_resources <- function(df){
              r=100,
              t=40)
     )
+  for(g in colnames(df)[-1]){
+     p <- plotly::add_trace(p, y = df[[g]], name = g)
+  }
+  p <- plotly::layout(p, yaxis = list(title = 'Count'), barmode = 'stack')
+  p
 }
 # --------------------------------------------------------------------------- #
 
