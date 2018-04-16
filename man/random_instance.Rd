@@ -4,7 +4,7 @@
 \alias{random_instance}
 \title{Generate random data.}
 \usage{
-random_instance(num_air, num_per)
+random_instance(num_air, num_mach, num_brig, num_per, seed)
 }
 \arguments{
 \item{num_air}{number of aircrafts.}

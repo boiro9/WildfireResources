@@ -4,7 +4,7 @@
 \alias{data_num_resources}
 \title{Get the number of resources per period.}
 \usage{
-data_num_resources(sol)
+data_num_resources(data, sol)
 }
 \arguments{
 \item{sol}{solution of WildfireResources problem.}

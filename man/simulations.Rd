@@ -4,8 +4,9 @@
 \alias{simulations}
 \title{Simulates and solves a battery of problems.}
 \usage{
-simulations(list_num_air, list_num_per, n_sims, seed = 1,
-  outfile = "results.csv")
+simulations(list_num_air = c(5, 10), list_num_mach = c(5, 10),
+  list_num_brig = c(5, 10), list_num_per = c(20, 30, 40), n_sims = 50,
+  seed = 1, outfile = "results_less_cases.csv")
 }
 \arguments{
 \item{list_num_air}{number of aircrafts list.}
@@ -26,4 +27,5 @@ Simulates and solves a battery of problems.
 }
 \examples{
 execute_instances(c(5, 10, 15), c(5, 10, 15), 10)
+num_air=5, num_mach=5, num_brig=5
 }

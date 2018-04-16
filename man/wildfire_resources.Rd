@@ -4,8 +4,8 @@
 \alias{wildfire_resources}
 \title{Model to solve the Aircraft Selection and Allocation problem (ASA) for the containment of a wildfire.}
 \usage{
-wildfire_resources(data, solver = "gurobi", solver_params = list(TimeLimit =
-  600, OutputFlag = 0))
+wildfire_resources(data, solver = "gurobi", solver_options = list(TimeLimit
+  = 600, OutputFlag = 0))
 }
 \arguments{
 \item{data}{a list with the needed information about aircrafts and wildfire. For more information see \code{\link{example_data}} function.}
@@ -24,8 +24,8 @@ Model to solve the Aircraft Selection and Allocation problem (ASA) for the conta
 data <- WildfireResources::example_data()
 WildfireResources::wildfire_resources(data, solver="lpSolveAPI")
 
-resources_file <- 'example/example1/Aeronaves1.csv'
-fire_file <- 'example/example1/Incendio4.csv'
+resources_file <- 'example/feasible/Resources.csv'
+fire_file <- 'example/feasible/Fire.csv'
 csvs <- WildfireResources::load_data(resources_file, fire_file)
 data1 <- WildfireResources::get_data(csvs$data.resources, csvs$data.fire, 10)
 sol <- WildfireResources::wildfire_resources(data1)

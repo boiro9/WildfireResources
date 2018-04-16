@@ -4,7 +4,7 @@
 \alias{inf_exact_model}
 \title{Model to solve the exact problem of Aircraft Selection and Allocation (ASA) for the containment of a wildfire.}
 \usage{
-inf_exact_model(data, solver = "gurobi", solver_params = list(TimeLimit =
+inf_exact_model(data, solver = "gurobi", solver_options = list(TimeLimit =
   600, OutputFlag = 0))
 }
 \arguments{
@@ -12,9 +12,9 @@ inf_exact_model(data, solver = "gurobi", solver_params = list(TimeLimit =
 
 \item{solver}{solver name, 'gurobi', 'Rsymphony' or 'lpSolve'.}
 
-\item{solver_params}{list of gurobi options. Defaults to list(TimeLimit=600, OutputFlag = 0).}
-
 \item{M_prime}{penalization for the breach of the minimum aircrafts on a wildfire.}
+
+\item{solver_params}{list of gurobi options. Defaults to list(TimeLimit=600, OutputFlag = 0).}
 }
 \value{
 information about the selection and allocation of the aircrafts.
