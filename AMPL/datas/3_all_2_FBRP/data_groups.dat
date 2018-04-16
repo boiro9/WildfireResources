@@ -1,0 +1,198 @@
+param m := 10;
+
+set I := BellB412_1	BellB412_2	BellB212_1	BellB212_2	Ka32_1	Ka32_2	BellB407_1	BellB407_2	BellB407_3;
+set G := Aerial;
+set G_I[Aerial] := BellB412_1	BellB412_2	BellB212_1	BellB212_2	Ka32_1	Ka32_2	BellB407_1	BellB407_2	BellB407_3;
+
+param C := 
+BellB412_1  200
+BellB412_2  200
+BellB212_1  150
+BellB212_2  150
+Ka32_1      125
+Ka32_2      125
+BellB407_1  150
+BellB407_2  150
+BellB407_3  150
+;
+
+param P :=
+BellB412_1  1000
+BellB412_2  1000
+BellB212_1  700
+BellB212_2  100
+Ka32_1      100
+Ka32_2      100
+BellB407_1  100
+BellB407_2  100
+BellB407_3  100
+;
+
+param BPR:=
+BellB412_1	2.08
+BellB412_2	2.08
+BellB212_1	1.72
+BellB212_2	1.72
+Ka32_1	    1.54
+Ka32_2	    1.54
+BellB407_1	1.9 
+BellB407_2	1.9 
+BellB407_3 	1.9 
+;
+
+param A := 
+BellB412_1  2
+BellB412_2  2
+BellB212_1  3
+BellB212_2  1
+Ka32_1      1
+Ka32_2      0
+BellB407_1  0
+BellB407_2  0
+BellB407_3  2
+;
+
+param CFP :=
+BellB412_1    11
+BellB412_2    11
+BellB212_1    11
+BellB212_2    11
+Ka32_1        11
+Ka32_2        11
+BellB407_1    11
+BellB407_2    11
+BellB407_3    11
+;
+
+param CRP :=
+BellB412_1  0
+BellB412_2  0
+BellB212_1  0
+BellB212_2  0
+Ka32_1      0
+Ka32_2      0
+BellB407_1  0
+BellB407_2  0
+BellB407_3  0
+;
+
+param CTFP :=
+BellB412_1  11
+BellB412_2  11
+BellB212_1  11
+BellB212_2  11
+Ka32_1      11
+Ka32_2      11
+BellB407_1  11
+BellB407_2  11
+BellB407_3  11
+;
+
+param FBRP := 
+BellB412_1  2
+BellB412_2  2
+BellB212_1  2
+BellB212_2  2
+Ka32_1      2
+Ka32_2      2
+BellB407_1  2
+BellB407_2  2
+BellB407_3  2
+;
+
+param FP := 
+BellB412_1  12
+BellB412_2  12
+BellB212_1  12
+BellB212_2  12
+Ka32_1      12
+Ka32_2      12
+BellB407_1  12
+BellB407_2  12
+BellB407_3  12
+;
+
+param RP := 
+BellB412_1  4
+BellB412_2  4
+BellB212_1  4
+BellB212_2  4
+Ka32_1      4
+Ka32_2      4
+BellB407_1  4
+BellB407_2  4
+BellB407_3  4
+;
+
+param DFP := 
+BellB412_1  48
+BellB412_2  48
+BellB212_1  48
+BellB212_2  48
+Ka32_1      48
+Ka32_2      48
+BellB407_1  48
+BellB407_2  48
+BellB407_3  48
+;
+
+param ITW := 
+BellB412_1  1
+BellB412_2  1
+BellB212_1  1
+BellB212_2  1
+Ka32_1      1
+Ka32_2      1
+BellB407_1  1
+BellB407_2  1
+BellB407_3  1
+;
+
+param IOW := 
+BellB412_1  0
+BellB412_2  0
+BellB212_1  0
+BellB212_2  0
+Ka32_1      0
+Ka32_2      0
+BellB407_1  0
+BellB407_2  0
+BellB407_3  0
+;
+
+param nMax: 
+		1 2 3 4 5 6 7 8 9 10 :=
+Aerial	4 4 4 4 4 4 4 4 4 4
+; 
+
+param nMin: 
+		1 2 3 4 5 6 7 8 9 10 :=
+Aerial	2 2 2 2 2 2 2 2 2 2
+;
+
+
+param PER :=
+1   5.6
+2   0.1
+3   0.1
+4   0.2
+5   0.2
+6   0.2
+7   0.2
+8   0.2
+9   0.2
+10  0.3
+;
+
+param NVC :=
+1   70
+2   140
+3   200
+4   270
+5   410
+6   500
+7   560
+8   650
+9   700
+10  760
+;
