@@ -49,7 +49,7 @@ param EF  {I, T} default 1;
 # ========
 param PR {i in I, t in T} := BPR[i]*EF[i,t];
 param M_prime      		  := 100*(sum{i in I}C[i] + sum{t in T}NVC[t]);
-param M            		  := sum{t in T} PER[t] + sum{i in I, t in T} PR[i,t];
+param M            		  := sum{t in T} PER[t];
 
 
 # =============================================================================
@@ -108,9 +108,10 @@ subject to cont_1:
 ;
 
 subject to cont_2 {t in T}:
-	sum{t1 in T_int[1,t]} PER[t1]*y[t-1] 
-	<=
-	sum{i in I, t1 in T_int[1,t]} PR[i,t1]*w[i,t1] + M*y[t]
+	M*y[t] 
+	>= 
+	sum{t1 in T_int[1,t]} PER[t1]*y[t-1] - 
+	sum{i in I, t1 in T_int[1,t]} PR[i,t1]*w[i,t1]
 ;
 
 
@@ -164,11 +165,11 @@ subject to breaks_1 {i in I, t in T}:
 
 subject to break_2 {i in I, t in T}:
 	if t-RP[i] >= 0 then
-		sum{t1 in T_int[max(1, t-RP[i]+1),t]} r[i,t1] 
+		sum{t1 in T_int[max(1, t-RP[i]+1),t]} r[i,t1] - RP[i]*er[i,t]
 	else
-		CRP[i]*s[i,1] + sum{t1 in T_int[1,t]} r[i,t1]
+		CRP[i]*s[i,1] + sum{t1 in T_int[1,t]} r[i,t1] - t*er[i,t]
 	
-	>= min(t, RP[i])*er[i,t]
+	>= 0
 ;
 
 subject to break_3 {i in I, t in T}:
