@@ -8,6 +8,9 @@
 #' @export
 #'
 #' @examples
+#' resources_file <- 'example/feasible/Resources.csv'
+#' fire_file <- 'example/feasible/Fire.csv'
+#' data <- load_data(resources_file, fire_file); data
 load_data <- function(resources_file, fire_file){
   # Resources
   resources <- load_resources_data(resources_file)
@@ -63,6 +66,12 @@ load_fire_data  <- function(fire_file){
 #' @export
 #'
 #' @examples
+#' resources_file <- 'example/feasible/Resources.csv'
+#' fire_file <- 'example/feasible/Fire.csv'
+#' data <- load_data(resources_file, fire_file); data
+#' resources <- data$data.resources
+#' fire <- data$data.fire
+#' period_time <- 10
 get_data <- function(resources, fire, period_time){
   # Aircraft
   # --------
@@ -70,8 +79,8 @@ get_data <- function(resources, fire, period_time){
   I <- resources[,I_col]
   
   C_col <- which(names(resources) == 'C')
-  C_min <- as.double(resources[,C_col])
-  names(C_min) <- I
+  C_hour <- as.double(resources[,C_col])
+  names(C_hour) <- I
   
   P_col <- which(names(resources) == 'P')
   P <- as.double(resources[,P_col])
@@ -168,7 +177,7 @@ get_data <- function(resources, fire, period_time){
   UP <- UP_min/period_time
   TRP <- TRP_min/period_time
   
-  C <- C_min*period_time
+  C <- C_hour*period_time/60
   A <- A_min/period_time
   CWP <- CWP_min/period_time
   CRP <- CRP_min/period_time

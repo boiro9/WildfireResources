@@ -16,3 +16,11 @@ get_data(resources, fire, period_time)
 \description{
 Get data
 }
+\examples{
+resources_file <- 'example/feasible/Resources.csv'
+fire_file <- 'example/feasible/Fire.csv'
+data <- load_data(resources_file, fire_file); data
+resources <- data$data.resources
+fire <- data$data.fire
+period_time <- 10
+}
